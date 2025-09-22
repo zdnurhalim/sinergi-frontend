@@ -14,7 +14,7 @@ import MainDashboard from "./pages/dashboard/MainDashboard";
 import JobsPage from "./pages/dashboard/JobsPage";
 import CreateJobPage from "./pages/dashboard/CreateJobPage";
 import CompanyPage from "./pages/dashboard/CompanyPage";
-
+import { ApplicantProfilePage } from "./pages/dashboard/jobs/ApplicantProfile";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +35,7 @@ const App = () => (
             <Route path="jobs" element={<JobsPage />} />
             <Route path="create-job" element={<CreateJobPage />} />
             <Route path="company" element={<CompanyPage />} />
+            <Route path="jobs/applicant/:id" element={<ApplicantProfilePage />} />
           </Route>
 
           {/* Catch-all */}

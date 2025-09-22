@@ -14,6 +14,10 @@ export default function JobsPage() {
   const [jobs] = useState<Job[]>(sampleJobs);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
+  const handleCreateNew = () => {
+    console.log("create new job");
+  };
+
   const handleEdit = (id: number) => {
     console.log("Edit job", id);
   };
@@ -39,6 +43,7 @@ export default function JobsPage() {
       onEdit={handleEdit}
       onDelete={handleDelete}
       onView={handleView}
+      onCreateNew={handleCreateNew}
     />
   );
 }

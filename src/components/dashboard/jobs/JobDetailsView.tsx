@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ReusableAlert } from '@/components/reusable/AlertDialog';
 
 interface Job {
   id: number;
@@ -25,6 +28,12 @@ interface JobDetailsViewProps {
 }
 
 export const JobDetailsView: React.FC<JobDetailsViewProps> = ({ job, onBack }) => {
+  const navigate = useNavigate();
+  
+  const handleViewProfile = (id: number) => {
+    navigate(`/dashboard/jobs/applicant/${id}`);
+  };
+
   const [applicants] = useState<Applicant[]>([
     {
       id: 1,
@@ -50,7 +59,11 @@ export const JobDetailsView: React.FC<JobDetailsViewProps> = ({ job, onBack }) =
   ]);
 
   const shortlistedCandidates = applicants.filter(applicant => applicant.status === 'shortlisted');
-
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const onDelete = (id: number) => {
+    // Logic to reject candidate
+    setIsAlertOpen(false);
+  }
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'shortlisted':
@@ -149,12 +162,19 @@ export const JobDetailsView: React.FC<JobDetailsViewProps> = ({ job, onBack }) =
                       <p className="text-sm text-gray-500">Applied: {applicant.appliedAt}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button className="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        View Profile
-                      </button>
-                      <button className="px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                        Shortlist
-                      </button>
+                       <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => handleViewProfile(applicant.id)}
+                        >
+                          View Profile
+                        </Button>
+                      <Button
+                          variant="secondary"
+                          size="sm"
+                        >
+                          Shortlist
+                        </Button>
                     </div>
                   </div>
                 </div>
@@ -184,15 +204,15 @@ export const JobDetailsView: React.FC<JobDetailsViewProps> = ({ job, onBack }) =
                         <p className="text-sm text-gray-500">Applied: {candidate.appliedAt}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button className="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <Button variant="default" size="sm" >
                           Interview
-                        </button>
-                        <button className="px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        </Button>
+                        <Button variant="secondary" size="sm" >
                           Hire
-                        </button>
-                        <button className="px-3 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        </Button>
+                        <Button variant="destructive" size="sm" onClick={() => setIsAlertOpen(true)}>
                           Reject
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -206,6 +226,15 @@ export const JobDetailsView: React.FC<JobDetailsViewProps> = ({ job, onBack }) =
           </div>
         </TabsContent>
       </Tabs>
+
+      <ReusableAlert
+          open={isAlertOpen}
+          onOpenChange={setIsAlertOpen}
+          title="Reject Candidate?"
+          description="This action cannot be undone. This will permanently to reject this candidate."
+          confirmText="Yes, Reject"
+          onConfirm={() => onDelete(job.id)}
+        />
     </div>
   );
 };
