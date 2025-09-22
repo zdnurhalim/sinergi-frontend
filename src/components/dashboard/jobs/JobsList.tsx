@@ -1,0 +1,37 @@
+import React from "react";
+import {JobCard} from "@/components/dashboard/jobs/JobCard";
+import { Job } from "@/types/job";
+
+interface Props {
+  jobs: Job[];
+  onEdit: (id: number) => void;
+  onDelete: (id: number) => void;
+  onView: (id: number) => void;
+  onCreateNew?: () => void;
+}
+
+export default function JobsList({ jobs, onEdit, onDelete, onView, onCreateNew }: Props) {
+  return (
+    <div className="max-w-7xl mx-auto space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-900">All Jobs</h1>
+        <div className="space-x-2">
+          {onCreateNew && (
+            <button
+              onClick={onCreateNew}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              Create New Job
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {jobs.map((job) => (
+          <JobCard key={job.id} job={job} onEdit={onEdit} onDelete={onDelete} onView={onView} />
+        ))}
+      </div>
+    </div>
+  );
+}

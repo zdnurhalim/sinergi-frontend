@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Sidebar } from '@/components/dashboard/Sidebar';
-import { JobCreationForm } from '@/components/dashboard/JobCreationForm';
+import  Sidebar  from '@/components/dashboard/Sidebar';
+import { JobCreationForm } from '@/components/dashboard/jobCreation/JobCreationForm';
 import { AIContextSection } from '@/components/dashboard/AIContextSection';
-import { JobVersionCard } from '@/components/dashboard/JobVersionCard';
-import { JobCard } from '@/components/dashboard/JobCard';
-import { JobDetailsView } from '@/components/dashboard/JobDetailsView';
-import { CompanySettings } from '@/components/dashboard/CompanySettings';
-import { MultiStepJobForm } from '@/components/dashboard/MultiStepJobForm';
+import { JobVersionCard } from '@/components/dashboard/jobCreation/JobVersionCard';
+import { JobCard } from '@/components/dashboard/jobs/JobCard';
+import { JobDetailsView } from '@/components/dashboard/jobs/JobDetailsView';
+import { CompanySettings } from '@/components/dashboard/company/CompanySettings';
+import { MultiStepJobForm } from '@/components/dashboard/jobCreation/MultiStepJobForm';
 
 interface Job {
   id: number;
@@ -101,7 +101,7 @@ const Dashboard = () => {
     }
 
     if (activeView === 'create-job') {
-      // Show job versions if we have form data, otherwise show the multi-step form
+      // Show job versions if we have form data, otherwise show the multi-step formz
       if (jobFormData) {
         return (
           <div className="max-w-7xl mx-auto space-y-6">
@@ -217,10 +217,10 @@ Take the next step in your career journey!`}
     <div className="h-screen flex">
       {/* Left Column - Sidebar */}
       <div className="w-[217px] flex-shrink-0">
-        <Sidebar 
+        {/* <Sidebar 
           activeView={activeView}
           onViewChange={setActiveView}
-        />
+        /> */}
       </div>
       
       {/* Right Column - Main Content Area */}
