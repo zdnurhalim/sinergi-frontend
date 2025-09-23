@@ -22,18 +22,6 @@ interface JobCardProps {
 
 export const JobCard: React.FC<JobCardProps> = ({ job, onEdit, onDelete, onView, className = '' }) => {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'published':
-        return 'bg-green-100 text-green-800';
-      case 'draft':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'closed':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   return (
     <div>  
@@ -46,14 +34,14 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onEdit, onDelete, onView,
       />
       
       {/* call alert */}
-        <ReusableAlert
-          open={isAlertOpen}
-          onOpenChange={setIsAlertOpen}
-          title="Delete Job?"
-          description="This action cannot be undone. This will permanently delete this job."
-          confirmText="Yes, delete"
-          onConfirm={() => onDelete(job.id)}
-        />
+      <ReusableAlert
+        open={isAlertOpen}
+        onOpenChange={setIsAlertOpen}
+        title="Delete Job?"
+        description="This action cannot be undone. This will permanently delete this job."
+        confirmText="Yes, delete"
+        onConfirm={() => onDelete(job.id)}
+      />
     </div>
   );
 };
