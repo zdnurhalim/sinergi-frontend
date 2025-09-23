@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import JobsList from "@/components/dashboard/jobs/JobsList";
 import {JobDetailsView} from "@/components/dashboard/jobs/JobDetailsView";
 import { Job } from "@/types/job";
+import { useNavigate } from "react-router-dom";
 
 const sampleJobs: Job[] = [
   { id: 1, title: "Social Media Specialist", company: "KopiKreatif", description: "We are looking for a creative Social Media Specialist...", status: "published", applicants: 24, createdAt: "2024-01-15" },
@@ -13,6 +14,12 @@ const sampleJobs: Job[] = [
 export default function JobsPage() {
   const [jobs] = useState<Job[]>(sampleJobs);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const navigate = useNavigate();
+
+  const handleCreateNew = () => {
+    console.log("create new job");
+    navigate("/dashboard/create-job");
+  };
 
   const handleEdit = (id: number) => {
     console.log("Edit job", id);
@@ -39,6 +46,7 @@ export default function JobsPage() {
       onEdit={handleEdit}
       onDelete={handleDelete}
       onView={handleView}
+      onCreateNew={handleCreateNew}
     />
   );
 }

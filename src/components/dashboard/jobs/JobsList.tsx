@@ -1,6 +1,7 @@
 import React from "react";
 import {JobCard} from "@/components/dashboard/jobs/JobCard";
 import { Job } from "@/types/job";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   jobs: Job[];
@@ -17,12 +18,9 @@ export default function JobsList({ jobs, onEdit, onDelete, onView, onCreateNew }
         <h1 className="text-2xl font-bold text-gray-900">All Jobs</h1>
         <div className="space-x-2">
           {onCreateNew && (
-            <button
-              onClick={onCreateNew}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-            >
+            <Button variant="default" size="lg" onClick={onCreateNew}>
               Create New Job
-            </button>
+            </Button>
           )}
         </div>
       </div>
