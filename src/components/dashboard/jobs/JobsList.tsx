@@ -13,7 +13,7 @@ interface Props {
 
 export default function JobsList({ jobs, onEdit, onDelete, onView, onCreateNew }: Props) {
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">All Jobs</h1>
         <div className="space-x-2">
