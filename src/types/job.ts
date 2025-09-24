@@ -1,4 +1,3 @@
-// reusable Job type
 export interface Job {
   id: number;
   title: string;
@@ -7,4 +6,5 @@ export interface Job {
   status: 'draft' | 'published' | 'closed';
   applicants: number;
   createdAt: string;
+  category: string;
 }
