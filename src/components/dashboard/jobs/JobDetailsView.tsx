@@ -331,7 +331,6 @@ export const JobDetailsView: React.FC<JobDetailsViewProps> = ({ job, onBack }) =
             </div>
           </div>
         </TabsContent>
-
       </Tabs>
 
       <ReusableAlert
