@@ -1,42 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
-
-interface CompanyDetails {
-  companyName: string;
-  industry: string;
-  companySize: string;
-  otherInformation: string;
-}
-
-interface JobDetails {
-  position: string;
-  dailyTasks: string;
-  salaryRange: string;
-  specificDetails: string;
-}
-
-interface JobAdPreferences {
-  includeCompanyName: boolean;
-  includeSalaryRange: boolean;
-  includeAgeLimitation: boolean;
-  includeGenderPreference: boolean;
-}
-
-interface MultiStepJobFormProps {
-  onComplete: (data: {
-    company: CompanyDetails;
-    job: JobDetails;
-    preferences: JobAdPreferences;
-  }) => void;
-}
+import { ReusableAlert } from '@/components/reusable/AlertDialog';
+import { CompanyDetails, JobDetails, JobAdPreferences, MultiStepJobFormProps } from "@/types/job";
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { DatePicker } from "@/components/reusable/Datepicker";
 
 export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }) => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const [isProcessing, setIsProcessing] = useState(false);
-  
+  const [alertOpen, setAlertOpen] = useState(false);
   const [companyDetails, setCompanyDetails] = useState<CompanyDetails>({
     companyName: '',
     industry: '',
@@ -47,7 +23,11 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
   const [jobDetails, setJobDetails] = useState<JobDetails>({
     position: '',
     dailyTasks: '',
-    salaryRange: '',
+    salaryMin: 0,
+    salaryMax: 0,
+    ageMax: 0,
+    gender: '',
+    vacancyDeadline: '',
     specificDetails: ''
   });
 
@@ -58,21 +38,21 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
     includeGenderPreference: false
   });
 
-  const industries = [
-    'Technology', 'Healthcare', 'Finance', 'Education', 'Manufacturing',
-    'Retail', 'Consulting', 'Marketing & Advertising', 'Real Estate',
-    'Transportation', 'Food & Beverage', 'Entertainment', 'Non-profit',
-    'Government', 'Other'
-  ];
+  // konversi gender string ke array untuk checkbox
+  const genderArray = jobDetails.gender ? jobDetails.gender.split(",") : [];
 
-  const companySizes = [
-    { value: 'small', label: 'Small (1-50 employees)' },
-    { value: 'middle', label: 'Middle (51-200 employees)' },
-    { value: 'enterprise', label: 'Enterprise (200+ employees)' }
-  ];
+  const handleGenderChange = (gender: string, checked: boolean) => {
+    let newGender = [...genderArray];
+    if (checked) {
+      if (!newGender.includes(gender)) newGender.push(gender);
+    } else {
+      newGender = newGender.filter((g) => g !== gender);
+    }
+    updateJobDetails("gender", newGender.join(",")); // simpan sebagai string
+  };
 
   const handleNext = () => {
-    if (currentStep < 4) {
+    if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -83,22 +63,36 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
     }
   };
 
-  const handleProceed = async () => {
-    setIsProcessing(true);
-    
-    // Simulate AI processing
-    setTimeout(() => {
-      setIsProcessing(false);
-      onComplete({
-        company: companyDetails,
-        job: jobDetails,
-        preferences: jobAdPreferences
-      });
-    }, 3000);
+   const handleSetDraft = () => {
+    console.log("Set Draft", jobDetails);
+    // redirect ke PricingPage
+    navigate("/dashboard/pricing");
   };
 
-  const updateCompanyDetails = (field: keyof CompanyDetails, value: string) => {
-    setCompanyDetails(prev => ({ ...prev, [field]: value }));
+  const handlePublishNow = () => {
+    console.log("Publish Now", jobDetails);
+    // redirect ke PricingPage
+    navigate("/dashboard/pricing");
+  };
+
+
+  // const handleProceed = () => setAlertOpen(true);
+  const handleProceed = (jobId?: string) => {
+    const payload = {
+      company: companyDetails,
+      job: jobDetails,
+      preferences: jobAdPreferences,
+      jobId, // kirim jobId jika ada
+    };
+
+    if (jobId) {
+      console.log("Update Job:", payload);
+      // panggil API update
+    } else {
+      console.log("Generate Job Ad:", payload);
+      setAlertOpen(true);
+      // panggil API create
+    }
   };
 
   const updateJobDetails = (field: keyof JobDetails, value: string) => {
@@ -109,115 +103,77 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
     setJobAdPreferences(prev => ({ ...prev, [field]: value }));
   };
 
-  if (isProcessing) {
-    return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12">
-        <div className="text-center space-y-6">
-          <div className="flex justify-center">
-            <Loader2 className="h-16 w-16 text-blue-600 animate-spin" />
-          </div>
-          <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-gray-900">Creating Your Job Ad</h2>
-            <p className="text-gray-600">Our AI is analyzing your requirements and crafting the perfect job advertisement...</p>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div className="bg-blue-600 h-2 rounded-full animate-pulse w-3/4"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // di dalam component
+  const { jobId } = useParams<{ jobId: string }>();
+
+  // bisa pakai jobId untuk fetch data awal
+  useEffect(() => {
+    if (jobId) {
+      // fetch job data by id
+      // misal:
+      // fetchJobById(jobId).then(data => {
+      //   setCompanyDetails(data.company);
+      //   setJobDetails(data.job);
+      //   setJobAdPreferences(data.preferences);
+      // });
+    }
+  }, [jobId]);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 max-w-5xl mx-auto">
       {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
-          <span>Step {currentStep} of 4</span>
-          <span>{Math.round((currentStep / 4) * 100)}% Complete</span>
+          <span>Step {currentStep} of 3</span>
+          <span>{Math.round((currentStep / 3) * 100)}% Complete</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
             className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-            style={{ width: `${(currentStep / 4) * 100}%` }}
+            style={{ width: `${(currentStep / 3) * 100}%` }}
           />
         </div>
       </div>
 
-      {/* Step 1: Company Description */}
+      {/* Step 1: Job Details */}
       {currentStep === 1 && (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-gray-900">Company Description</h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
-              <input
-                type="text"
-                value={companyDetails.companyName}
-                onChange={(e) => updateCompanyDetails('companyName', e.target.value)}
-                placeholder="Enter your company name"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
-              <Select value={companyDetails.industry} onValueChange={(value) => updateCompanyDetails('industry', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your industry" />
-                </SelectTrigger>
-                <SelectContent className="bg-white border border-gray-200 shadow-lg rounded-lg z-50 max-h-60 overflow-y-auto">
-                  {industries.map((industry) => (
-                    <SelectItem key={industry} value={industry}>{industry}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Company Size</label>
-              <Select value={companyDetails.companySize} onValueChange={(value) => updateCompanyDetails('companySize', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your company size" />
-                </SelectTrigger>
-                <SelectContent className="bg-white border border-gray-200 shadow-lg rounded-lg z-50">
-                  {companySizes.map((size) => (
-                    <SelectItem key={size.value} value={size.value}>{size.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Other Information</label>
-              <textarea
-                value={companyDetails.otherInformation}
-                onChange={(e) => updateCompanyDetails('otherInformation', e.target.value)}
-                placeholder="Company culture, mission, values, benefits..."
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Step 2: Job Details */}
-      {currentStep === 2 && (
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-gray-900">Job Details</h2>
           
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Desired Position</label>
-              <input
-                type="text"
-                value={jobDetails.position}
-                onChange={(e) => updateJobDetails('position', e.target.value)}
-                placeholder="e.g. Senior Software Developer, Marketing Manager"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+            <div className="flex gap-4">
+              {/* Desired Position */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Desired Position
+                </label>
+                <input
+                  type="text"
+                  value={jobDetails.position}
+                  onChange={(e) => updateJobDetails('position', e.target.value)}
+                  placeholder="e.g. Senior Software Developer, Marketing Manager"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Vacancy Deadline */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Vacancy Deadline
+                </label>
+                <DatePicker
+                  value={jobDetails.vacancyDeadline ? new Date(jobDetails.vacancyDeadline) : undefined}
+                  onChange={(date) => 
+                    updateJobDetails(
+                      'vacancyDeadline', 
+                      date ? date.toISOString().split("T")[0] : ""
+                    )
+                  }
+                  placeholder="Select deadline"
+                  className="w-full"
+                />
+
+              </div>
             </div>
 
             <div>
@@ -233,14 +189,63 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Salary Range</label>
-              <input
-                type="text"
-                value={jobDetails.salaryRange}
-                onChange={(e) => updateJobDetails('salaryRange', e.target.value)}
-                placeholder="e.g. IDR 8,000,000 - 12,000,000/month"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  value={jobDetails.salaryMin}
+                  onChange={(e) => updateJobDetails('salaryMin', e.target.value)}
+                  placeholder="Min Salary"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="number"
+                  value={jobDetails.salaryMax}
+                  onChange={(e) => updateJobDetails('salaryMax', e.target.value)}
+                  placeholder="Max Salary"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
+
+            
+           <div className="flex gap-4">
+              {/* Gender */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={genderArray.includes("Male")}
+                      onCheckedChange={(checked) => handleGenderChange("Male", !!checked)}
+                    />
+                    <span>Male</span>
+                  </label>
+
+                  <label className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={genderArray.includes("Female")}
+                      onCheckedChange={(checked) => handleGenderChange("Female", !!checked)}
+                    />
+                    <span>Female</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Age Limitation */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Age Limitation</label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    value={jobDetails.ageMax || ""}
+                    onChange={(e) => updateJobDetails("ageMax", e.target.value)}
+                    placeholder="Max Age"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Specific Details</label>
@@ -256,8 +261,8 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
         </div>
       )}
 
-      {/* Step 3: Job Ad Preferences */}
-      {currentStep === 3 && (
+      {/* Step 2: Job Ad Preferences */}
+      {currentStep === 2 && (
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-gray-900">What to Include in Job Ad</h2>
           
@@ -319,8 +324,8 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
         </div>
       )}
 
-      {/* Step 4: Review and Proceed */}
-      {currentStep === 4 && (
+      {/* Step : Review and Proceed */}
+      {currentStep === 3 && (
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-gray-900">Review & Proceed</h2>
           
@@ -330,7 +335,7 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
               <div className="bg-gray-50 p-4 rounded-lg space-y-2 text-sm">
                 <p><span className="font-medium">Company:</span> {companyDetails.companyName}</p>
                 <p><span className="font-medium">Industry:</span> {companyDetails.industry}</p>
-                <p><span className="font-medium">Size:</span> {companySizes.find(s => s.value === companyDetails.companySize)?.label}</p>
+                <p><span className="font-medium">Size:</span></p>
               </div>
             </div>
 
@@ -338,7 +343,8 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
               <h3 className="text-lg font-semibold text-gray-800">Job Details</h3>
               <div className="bg-gray-50 p-4 rounded-lg space-y-2 text-sm">
                 <p><span className="font-medium">Position:</span> {jobDetails.position}</p>
-                <p><span className="font-medium">Salary:</span> {jobDetails.salaryRange}</p>
+                <p><span className="font-medium">Salary Min:</span> {jobDetails.salaryMin}</p>
+                <p><span className="font-medium">Salary Max:</span> {jobDetails.salaryMax}</p>
               </div>
             </div>
           </div>
@@ -364,7 +370,7 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
           Back
         </Button>
 
-        {currentStep < 4 ? (
+        {currentStep < 3 ? (
           <Button
             type="button"
             onClick={handleNext}
@@ -376,14 +382,26 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
         ) : (
           <Button
             type="button"
-            onClick={handleProceed}
+            onClick={() => handleProceed(jobId)}
             className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
           >
-            Generate Job Ad
+            {jobId ? "Update Jobs" : "Generate Job Ad"}
             <ArrowRight className="h-4 w-4" />
           </Button>
         )}
       </div>
+
+      <ReusableAlert
+        title="Confirm Job Ad"
+        description="Are you sure you want to proceed with this job ad?"
+        open={alertOpen}
+        onOpenChange={setAlertOpen}
+        confirmText="Set Draft"
+        confirmText2="Publish Now"
+         onConfirm={handleSetDraft}
+        onConfirm2={handlePublishNow}
+        cancelText="Cancel"
+      />
     </div>
   );
 };

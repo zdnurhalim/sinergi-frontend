@@ -2,88 +2,49 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ReusableAlert } from '@/components/reusable/AlertDialog';
-import { ReusableDialog } from "@/components/reusable/Dialog";
 import { Job } from "@/types/job";
-import { DatePicker } from '@/components/reusable/Datepicker';
-import { format } from "date-fns"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-
-interface Applicant {
-  id: number;
-  name: string;
-  email: string;
-  status: 'applied' | 'shortlisted' | 'rejected' | 'scheduled' | 'hired';
-  appliedAt: string;
-}
+import { JobDialogs } from '@/components/dashboard/jobs/feedback/DialogState';
+import { JobAlerts  } from '@/components/dashboard/jobs/feedback/AlertState';
+import { getStatusColor } from "@/components/utils/GetJobStatusColor";
+import { AlertState } from "@/types/AlertType";
+import { DialogState } from "@/types/DialogType";
+import { applicants } from "@/types/ApplicantType";
 
 export const JobDetailsView: React.FC<{ job:Job; onBack: () => void;}> = ({ job, onBack }) => {
   const navigate = useNavigate();
+  // state dialog & alert
+  const [dialogState, setDialogState] = useState<DialogState>({type: null,payload: {},});
+  const [alertState, setAlertState] = useState<AlertState>({ type: null });
   
-  const handleViewProfile = (id: number) => {
-    navigate(`/dashboard/jobs/applicant/${id}`);
-  };
-
-  const [applicants] = useState<Applicant[]>([
-    {id: 1,name: 'Sarah Johnson', email: 'sarah.johnson@email.com', status: 'shortlisted', appliedAt: '2024-01-16'},
-    {id: 2, name: 'Michael Chen', email: 'michael.chen@email.com', status: 'scheduled', appliedAt: '2024-01-17'},
-    {id: 3, name: 'Emma Rodriguez', email: 'emma.rodriguez@email.com', status: 'applied', appliedAt: '2024-01-18'},
-    { id: 4, name: 'John Doe', email: 'johndoe@gmail.com', status: 'scheduled', appliedAt: '2024-01-18' },
-    { id: 5, name: 'Jane Smith', email: 'janesmith@gmail.com', status: 'hired', appliedAt: '2024-01-19' },
-  ]);
-
+  // filter tab
   const shortlistedCandidates = applicants.filter(applicant => applicant.status === 'shortlisted');
   const scheduledCandidates = applicants.filter(applicant => applicant.status === 'scheduled');
   const hiredCandidates = applicants.filter(applicant => applicant.status === 'hired');
   const rejectedCandidate = applicants.filter(applicant => applicant.status === 'rejected');
-  const [activeAlert, setActiveAlert] = useState<null | "reject" | "shortlist" | "hire" | "interview">(null);
-  const [activeDialog, setActiveDialog] = useState<null | "hire" | "interview" | "reject">(null);
-  const [interviewDate, setInterviewDate] = useState<Date | undefined>(undefined);
-  const [interviewMessage, setInterviewMessage] = useState("");
-  const [hireDate, setHireDate] = useState<Date | undefined>(undefined);
-  const [hireTime, setHireTime] = useState<string>("");
-  const [hireMessage, setHireMessage] = useState("");
-  const [rejectMessage, setRejectMessage] = useState<string>("");
-  const [applicantName, setApplicantName] = useState<string>("");
 
-  const onShortlist = (id: number) => {
-    // Logic to reject candidate
-    setActiveAlert(null);
-  }
+  // handler
+  const handleViewProfile = (id: number) => {
+    navigate(`/dashboard/jobs/applicant/${id}`);
+  };
+
   const handleInterviewSchedule = () => {
-    console.log("Schedule:", { interviewDate, interviewMessage });
-    setActiveDialog(null);
+    console.log("Interview scheduled:", dialogState.payload);
+    setDialogState({ type: null, payload: {} });
   };
+
   const handleHireSchedule = () => {
-    console.log("Hire:", {
-      date: hireDate ? format(hireDate, "yyyy-MM-dd") : null,
-      time: hireTime,
-      message: hireMessage,
-    })
-    setActiveDialog(null);
-    setHireDate(null)
-    setHireTime(null)
+    console.log("Hire scheduled:", dialogState.payload);
+    setDialogState({ type: null, payload: {} });
   };
+
   const handleReject = () => {
-    console.log("Reject:", { rejectMessage });
-    setActiveDialog(null);
-  }
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'shortlisted':
-        return 'bg-green-100 text-green-800';
-      case 'applied':
-        return 'bg-blue-100 text-blue-800';
-      case 'rejected':
-        return 'bg-red-100 text-red-800';
-      case 'scheduled':
-        return 'bg-purple-100 text-purple-800';
-      case 'hired':
-        return 'bg-indigo-100 text-indigo-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+    console.log("Rejected:", dialogState.payload);
+    setDialogState({ type: null, payload: {} });
+  };
+
+  const handleShortlist = (jobId: number) => {
+    console.log("Shortlisted job:", jobId);
+    // TODO: panggil API shortlist / update state
   };
 
   return (
@@ -173,10 +134,15 @@ export const JobDetailsView: React.FC<{ job:Job; onBack: () => void;}> = ({ job,
                        <Button variant="default" size="sm" onClick={() => handleViewProfile(applicant.id)} >
                           View Profile
                         </Button>
-                        <Button variant="secondary" size="sm" onClick={() => setActiveAlert("shortlist")}>
+                        <Button variant="secondary" size="sm" onClick={() => setAlertState({ type: "shortlist", payload: { applicantName: applicant.name } })}>
                             Shortlist
                         </Button>
-                        <Button variant="destructive" size="sm" onClick={() => { setActiveAlert("reject"); setApplicantName(applicant.name); }}>
+                        <Button variant="destructive" size="sm" onClick={() =>
+                            setAlertState({
+                              type: "reject",
+                              payload: { applicantName: applicant.name },
+                            })
+                          }>
                           Reject
                         </Button>
                     </div>
@@ -205,16 +171,31 @@ export const JobDetailsView: React.FC<{ job:Job; onBack: () => void;}> = ({ job,
                           </span>
                         </div>
                         <p className="text-sm text-gray-600">{candidate.email}</p>
-                        <p className="text-sm text-gray-500">Applied: {candidate.appliedAt}</p>
+                        <p className="text-sm text-gray-500">Shortlisted: {candidate.shortlistedAt}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="default" size="sm" onClick={() => setActiveAlert("interview")}>
+                        <Button variant="default" size="sm" onClick={() =>
+                          setAlertState({
+                            type: "interview",
+                            payload: { applicantName: candidate.name },
+                          })
+                        }>
                           Interview
                         </Button>
-                        <Button variant="secondary" size="sm" onClick={() => setActiveAlert("hire")}>
+                        <Button variant="secondary" size="sm" onClick={() =>
+                          setAlertState({
+                            type: "hire",
+                            payload: { applicantName: candidate.name },
+                          })
+                        }>
                           Hire
                         </Button>
-                        <Button variant="destructive" size="sm" onClick={() => setActiveAlert("reject")}>
+                        <Button variant="destructive" size="sm" onClick={() =>
+                          setAlertState({
+                            type: "reject",
+                            payload: { applicantName: candidate.name },
+                          })
+                        }>
                           Reject
                         </Button>
                       </div>
@@ -248,10 +229,26 @@ export const JobDetailsView: React.FC<{ job:Job; onBack: () => void;}> = ({ job,
                           </span>
                         </div>
                         <p className="text-sm text-gray-600">{candidate.email}</p>
-                        <p className="text-sm text-gray-500">Applied: {candidate.appliedAt}</p>
+                        <p className="text-sm text-gray-500">Scheduled: {candidate.scheduledAt}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         {/* button area */}
+                        <Button variant="secondary" size="sm" onClick={() =>
+                          setAlertState({
+                            type: "hire",
+                            payload: { applicantName: candidate.name },
+                          })
+                        }>
+                          Hire
+                        </Button>
+                        <Button variant="destructive" size="sm" onClick={() =>
+                          setAlertState({
+                            type: "reject",
+                            payload: { applicantName: candidate.name },
+                          })
+                        }>
+                          Reject
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -283,7 +280,7 @@ export const JobDetailsView: React.FC<{ job:Job; onBack: () => void;}> = ({ job,
                           </span>
                         </div>
                         <p className="text-sm text-gray-600">{candidate.email}</p>
-                        <p className="text-sm text-gray-500">Applied: {candidate.appliedAt}</p>
+                        <p className="text-sm text-gray-500">Hired : {candidate.hiredAt}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         {/* button area */}
@@ -318,7 +315,7 @@ export const JobDetailsView: React.FC<{ job:Job; onBack: () => void;}> = ({ job,
                           </span>
                         </div>
                         <p className="text-sm text-gray-600">{candidate.email}</p>
-                        <p className="text-sm text-gray-500">Applied: {candidate.appliedAt}</p>
+                        <p className="text-sm text-gray-500">Rejected : {candidate.rejectedAt}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         {/* button area */}
@@ -335,102 +332,25 @@ export const JobDetailsView: React.FC<{ job:Job; onBack: () => void;}> = ({ job,
           </div>
         </TabsContent>
       </Tabs>
-
-      {/*Alert Section */}
-      <ReusableAlert
-          open={activeAlert === "reject"}
-          onOpenChange={(open) => setActiveAlert(open ? "reject" : null)}
-          title={"Reject Candidate : "+applicantName}
-          description="This action cannot be undone. This will permanently to reject this candidate."
-          confirmText="Yes, Reject"
-          onConfirm={() => setActiveDialog("reject")}
-        />
       
-      <ReusableAlert
-        open={activeAlert === "shortlist"}
-        onOpenChange={(open) => setActiveAlert(open ? "shortlist" : null)}
-        title="Shortlist this candidate?"
-        description="This action cannot be undone. This will permanently shortlisted the candidate."
-        confirmText="Yes, shortlist"
-        onConfirm={() => onShortlist(job.id)}
-      />
-
-      <ReusableAlert
-        open={activeAlert === "interview"}
-        onOpenChange={(open) => setActiveAlert(open ? "interview" : null)}
-        title="Schedule Interview?"
-        description="This action cannot be undone. This will permanently schedule an interview for this candidate."
-        confirmText="Yes, Schedule"
-        onConfirm={() => setActiveDialog("interview")}
-      />
-
-      <ReusableAlert
-        open={activeAlert === "hire"}
-        onOpenChange={(open) => setActiveAlert(open ? "hire" : null)}
-        title="Hire Candidate?"
-        description="This action cannot be undone. This will permanently hire this candidate."
-        confirmText="Yes, Hire"
-        onConfirm={() => setActiveDialog("hire")}
-      />
-
-      {/* Dialog Section */}
-      <ReusableDialog
-        open={activeDialog === "interview"}
-        onOpenChange={(open) => setActiveDialog(open ? "interview" : null)}
-        title="Set Interview Schedule"
-        description="Choose a date and message for the candidate."
-        confirmText="Set Interview"
-        onConfirm={handleInterviewSchedule}
-      >
-        {/* isi custom */}
-        <div className="flex gap-3 mb-3">
-          <div className="flex-1">
-            <DatePicker value={interviewDate} onChange={setInterviewDate} placeholder="Select hire date" className="w-full" />
-          </div>
-          <div className="flex-1">
-            <Input type="time" value={hireTime} onChange={(e) => setHireTime(e.target.value)}/>
-          </div>
-        </div>
-        <Textarea  placeholder="Message to candidate..." value={interviewMessage} onChange={(e) => setInterviewMessage(e.target.value)}  rows={3}/>
-      </ReusableDialog>
-
-      <ReusableDialog
-        open={activeDialog === "hire"}
-        onOpenChange={(open) => setActiveDialog(open ? "hire" : null) }
-        title="set a work schedule"
-        description="choose a date and message for the candidate."
-        confirmText="Save Schedule"
-        onConfirm={handleHireSchedule}
-      >
-        {/* isi custom */}
-        <div className="flex gap-3 mb-3">
-          <div className="flex-1">
-            <DatePicker value={hireDate || undefined} onChange={setHireDate} placeholder="Select hire date" className="w-full" />
-          </div>
-          <div className="flex-1">
-            <Input type="time" value={hireTime} onChange={(e) => setHireTime(e.target.value)}/>
-          </div>
-        </div>
-        <Textarea
-          placeholder="message to candidate..."
-          value={hireMessage}
-          onChange={(e) => setHireMessage(e.target.value)}
-          // className="w-full border rounded px-2 py-1"
-          rows={3}
+      <div>
+        {/* Alerts */}
+        <JobAlerts
+          alertState={alertState}
+          setAlertState={setAlertState}
+          setDialogState={setDialogState}
+          onShortlist={() => handleShortlist(job.id)}
         />
-      </ReusableDialog>
+        {/* Dialogs */}
+        <JobDialogs
+          dialogState={dialogState}
+          setDialogState={setDialogState}
+          onInterviewConfirm={handleInterviewSchedule}
+          onHireConfirm={handleHireSchedule}
+          onRejectConfirm={handleReject}
+        />
 
-      <ReusableDialog
-        open={activeDialog === "reject"}
-        onOpenChange={(open) => setActiveDialog(open ? "reject" : null) }
-        title={"Reject Candidate : " + applicantName}
-        description="Fill in the message to be sent to the candidate."
-        confirmText="Reject Candidate"
-        onConfirm={handleReject}
-      >
-        {/* isi custom */}
-        <Textarea placeholder="message to candidate..." value={rejectMessage || undefined} onChange={(e) => setRejectMessage(e.target.value)} rows={3}/>
-      </ReusableDialog>
+      </div>
     </div>
   );
 };

@@ -2,42 +2,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon } from "lucide-react";
+import { applicants } from "@/types/ApplicantType";
+import { getStatusColor } from "@/components/utils/GetJobStatusColor";
 
 export const ApplicantProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+   const applicant = applicants.find((a) => a.id === Number(id));
   const navigate = useNavigate();
-
-  // 🔹 Dummy data (nanti bisa diganti fetch dari API)
-  const applicant = {
-    id,
-    name: "Sarah Johnson",
-    email: "sarah.johnson@email.com",
-    phone: "+62 812-3456-7890",
-    appliedAt: "2024-01-16",
-    status: "shortlisted",
-    resume: "https://example.com/resume.pdf",
-    notes: "Sarah has 5+ years of experience in frontend development (React, TypeScript, Tailwind).",
-    history: [
-      { date: "2024-01-16", action: "Applied" },
-      { date: "2024-01-18", action: "Reviewed by HR" },
-      { date: "2024-01-20", action: "Shortlisted" },
-    ],
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "shortlisted":
-        return "bg-green-100 text-green-800";
-      case "reviewed":
-        return "bg-yellow-100 text-yellow-800";
-      case "applied":
-        return "bg-blue-100 text-blue-800";
-      case "rejected":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -103,6 +74,13 @@ export const ApplicantProfilePage: React.FC = () => {
 
         {/* Notes Tab */}
         <TabsContent value="notes" className="mt-4">
+          <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6 mb-3">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Applicant Notes
+            </h3>
+            <p className="text-gray-700 whitespace-pre-line">{applicant.notes}</p>
+          </div>
+
           <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               HR Notes
@@ -117,19 +95,39 @@ export const ApplicantProfilePage: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Application History
             </h3>
-            <ul className="space-y-2">
-              {applicant.history.map((item, idx) => (
-                <li
-                  key={idx}
-                  className="flex justify-between text-sm text-gray-700 border-b pb-2"
-                >
-                  <span>{item.action}</span>
-                  <span className="text-gray-500">{item.date}</span>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li className="flex justify-between border-b pb-2">
+                <span>Applied</span>
+                <span className="text-gray-500">{applicant.appliedAt}</span>
+              </li>
+              {applicant.shortlistedAt && (
+                <li className="flex justify-between border-b pb-2">
+                  <span>Shortlisted</span>
+                  <span className="text-gray-500">{applicant.shortlistedAt}</span>
                 </li>
-              ))}
+              )}
+              {applicant.scheduledAt && (
+                <li className="flex justify-between border-b pb-2">
+                  <span>Interview Scheduled</span>
+                  <span className="text-gray-500">{applicant.scheduledAt}</span>
+                </li>
+              )}
+              {applicant.hiredAt && (
+                <li className="flex justify-between border-b pb-2">
+                  <span>Hired</span>
+                  <span className="text-gray-500">{applicant.hiredAt}</span>
+                </li>
+              )}
+              {applicant.rejectedAt && (
+                <li className="flex justify-between border-b pb-2">
+                  <span>Rejected</span>
+                  <span className="text-gray-500">{applicant.rejectedAt}</span>
+                </li>
+              )}
             </ul>
           </div>
         </TabsContent>
+
       </Tabs>
     </div>
   );
