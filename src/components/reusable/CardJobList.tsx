@@ -1,6 +1,9 @@
-import React from "react";
+import React, {useState} from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Eye, Edit2, Trash2, User } from "lucide-react";
+import { Eye, Edit2, Trash2, User, Calendar } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ReusableDialog } from "@/components/reusable/Dialog";
+import { DatePicker } from "@/components/reusable/Datepicker";
 
 export interface Job {
   id: number;
@@ -30,6 +33,15 @@ const getStatusStyle = (status: Job['status']) => {
 };
 
 export const CardJobList: React.FC<JobCardProps> = ({ job, onView, onEdit, onDelete, className = '' }) => {
+  const navigate = useNavigate();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [lastPublishedDate, setLastPublishedDate] = useState<Date | undefined>(undefined);
+  const handleConfirmDate = () => {
+    console.log("Update last published date for job", job.id, "to", lastPublishedDate);
+    setDialogOpen(false);
+    // nanti bisa panggil API update tanggal terakhir
+  };
+
   return (
     <Card className={`relative transition-all duration-200 hover:shadow-lg ${className}`}>
       <CardHeader className="flex items-start gap-4">
@@ -51,12 +63,22 @@ export const CardJobList: React.FC<JobCardProps> = ({ job, onView, onEdit, onDel
           >
             <Eye size={18} />
           </button>
-          <button
-            onClick={() => onEdit(job.id)}
-            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-          >
-            <Edit2 size={18} />
-          </button>
+          {/* conditional button */}
+          {job.status === "draft" ? (
+            <button
+              onClick={() => navigate(`edit/${job.id}`)}
+              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <Edit2 size={18} />
+            </button>
+          ) : job.status === "published" ? (
+            <button
+              onClick={() => setDialogOpen(true)}
+              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <Calendar size={18} />
+            </button>
+          ) : null}
           <button
             onClick={() => onDelete(job.id)}
             className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -74,6 +96,22 @@ export const CardJobList: React.FC<JobCardProps> = ({ job, onView, onEdit, onDel
           <span>Created: {job.createdAt}</span>
         </div>
       </CardFooter>
+
+       <ReusableDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          title="Update Last Published Date"
+          description="Please select the new date for when this job was last advertised."
+          confirmText="Update Date"
+          cancelText="Cancel"
+          onConfirm={handleConfirmDate}
+        >
+          <DatePicker
+            value={lastPublishedDate}
+            onChange={setLastPublishedDate}
+            placeholder="Select last published date"
+          />
+        </ReusableDialog>
     </Card>
   );
 };

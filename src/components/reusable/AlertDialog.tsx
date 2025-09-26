@@ -14,9 +14,11 @@ interface ReusableAlertProps {
   description: string;
   confirmText?: string;
   cancelText?: string;
+  confirmText2?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
+  onConfirm2?: () => void; // optional tombol kedua
 }
 
 export const ReusableAlert: React.FC<ReusableAlertProps> = ({
@@ -24,9 +26,11 @@ export const ReusableAlert: React.FC<ReusableAlertProps> = ({
   description,
   confirmText = "Yes",
   cancelText = "Cancel",
+  confirmText2,
   open,
   onOpenChange,
   onConfirm,
+  onConfirm2,
 }) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -35,18 +39,32 @@ export const ReusableAlert: React.FC<ReusableAlertProps> = ({
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
+        <AlertDialogFooter className="space-x-2">
           <AlertDialogCancel onClick={() => onOpenChange(false)}>
             {cancelText}
           </AlertDialogCancel>
+          
+          {/* Tombol utama */}
           <AlertDialogAction
             onClick={() => {
               onConfirm();
-              onOpenChange(false); // tutup dialog setelah confirm
+              onOpenChange(false);
             }}
           >
             {confirmText}
           </AlertDialogAction>
+
+          {/* Tombol kedua jika ada */}
+          {onConfirm2 && confirmText2 && (
+            <AlertDialogAction
+              onClick={() => {
+                onConfirm2();
+                onOpenChange(false);
+              }}
+            >
+              {confirmText2}
+            </AlertDialogAction>
+          )}
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
