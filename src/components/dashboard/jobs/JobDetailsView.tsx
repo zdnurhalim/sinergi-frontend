@@ -4,16 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ReusableAlert } from '@/components/reusable/AlertDialog';
 import { ReusableDialog } from "@/components/reusable/Dialog";
-
-interface Job {
-  id: number;
-  title: string;
-  company: string;
-  description: string;
-  status: 'draft' | 'published' | 'closed';
-  applicants: number;
-  createdAt: string;
-}
+import { Job } from "@/types/job";
+import { DatePicker } from '@/components/reusable/Datepicker';
+import { format } from "date-fns"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 
 interface Applicant {
   id: number;
@@ -23,12 +18,7 @@ interface Applicant {
   appliedAt: string;
 }
 
-interface JobDetailsViewProps {
-  job: Job;
-  onBack: () => void;
-}
-
-export const JobDetailsView: React.FC<JobDetailsViewProps> = ({ job, onBack }) => {
+export const JobDetailsView: React.FC<{ job:Job; onBack: () => void;}> = ({ job, onBack }) => {
   const navigate = useNavigate();
   
   const handleViewProfile = (id: number) => {
@@ -48,15 +38,15 @@ export const JobDetailsView: React.FC<JobDetailsViewProps> = ({ job, onBack }) =
   const hiredCandidates = applicants.filter(applicant => applicant.status === 'hired');
   const rejectedCandidate = applicants.filter(applicant => applicant.status === 'rejected');
   const [activeAlert, setActiveAlert] = useState<null | "reject" | "shortlist" | "hire" | "interview">(null);
-  const [activeDialog, setActiveDialog] = useState<null | "hire" | "interview">(null);
-  const [interviewDate, setInterviewDate] = useState("");
+  const [activeDialog, setActiveDialog] = useState<null | "hire" | "interview" | "reject">(null);
+  const [interviewDate, setInterviewDate] = useState<Date | undefined>(undefined);
   const [interviewMessage, setInterviewMessage] = useState("");
-  const [hireDate, setHireDate] = useState("");
+  const [hireDate, setHireDate] = useState<Date | undefined>(undefined);
+  const [hireTime, setHireTime] = useState<string>("");
   const [hireMessage, setHireMessage] = useState("");
-  const onReject = (id: number) => {
-    // Logic to reject candidate
-    setActiveAlert(null);
-  }
+  const [rejectMessage, setRejectMessage] = useState<string>("");
+  const [applicantName, setApplicantName] = useState<string>("");
+
   const onShortlist = (id: number) => {
     // Logic to reject candidate
     setActiveAlert(null);
@@ -66,9 +56,19 @@ export const JobDetailsView: React.FC<JobDetailsViewProps> = ({ job, onBack }) =
     setActiveDialog(null);
   };
   const handleHireSchedule = () => {
-    console.log("Hire:", { hireDate, hireMessage });
+    console.log("Hire:", {
+      date: hireDate ? format(hireDate, "yyyy-MM-dd") : null,
+      time: hireTime,
+      message: hireMessage,
+    })
     setActiveDialog(null);
+    setHireDate(null)
+    setHireTime(null)
   };
+  const handleReject = () => {
+    console.log("Reject:", { rejectMessage });
+    setActiveDialog(null);
+  }
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'shortlisted':
@@ -173,8 +173,11 @@ export const JobDetailsView: React.FC<JobDetailsViewProps> = ({ job, onBack }) =
                        <Button variant="default" size="sm" onClick={() => handleViewProfile(applicant.id)} >
                           View Profile
                         </Button>
-                      <Button variant="secondary" size="sm" onClick={() => setActiveAlert("shortlist")}>
-                          Shortlist
+                        <Button variant="secondary" size="sm" onClick={() => setActiveAlert("shortlist")}>
+                            Shortlist
+                        </Button>
+                        <Button variant="destructive" size="sm" onClick={() => { setActiveAlert("reject"); setApplicantName(applicant.name); }}>
+                          Reject
                         </Button>
                     </div>
                   </div>
@@ -333,13 +336,14 @@ export const JobDetailsView: React.FC<JobDetailsViewProps> = ({ job, onBack }) =
         </TabsContent>
       </Tabs>
 
+      {/*Alert Section */}
       <ReusableAlert
           open={activeAlert === "reject"}
           onOpenChange={(open) => setActiveAlert(open ? "reject" : null)}
-          title="Reject Candidate?"
+          title={"Reject Candidate : "+applicantName}
           description="This action cannot be undone. This will permanently to reject this candidate."
           confirmText="Yes, Reject"
-          onConfirm={() => onReject(job.id)}
+          onConfirm={() => setActiveDialog("reject")}
         />
       
       <ReusableAlert
@@ -369,28 +373,25 @@ export const JobDetailsView: React.FC<JobDetailsViewProps> = ({ job, onBack }) =
         onConfirm={() => setActiveDialog("hire")}
       />
 
+      {/* Dialog Section */}
       <ReusableDialog
         open={activeDialog === "interview"}
         onOpenChange={(open) => setActiveDialog(open ? "interview" : null)}
         title="Set Interview Schedule"
         description="Choose a date and message for the candidate."
-        confirmText="Save Schedule"
+        confirmText="Set Interview"
         onConfirm={handleInterviewSchedule}
       >
         {/* isi custom */}
-        <input
-          type="datetime-local"
-          value={interviewDate}
-          onChange={(e) => setInterviewDate(e.target.value)}
-          className="w-full border rounded px-2 py-1 mb-3"
-        />
-        <textarea
-          placeholder="Message to candidate..."
-          value={interviewMessage}
-          onChange={(e) => setInterviewMessage(e.target.value)}
-          className="w-full border rounded px-2 py-1"
-          rows={3}
-        />
+        <div className="flex gap-3 mb-3">
+          <div className="flex-1">
+            <DatePicker value={interviewDate} onChange={setInterviewDate} placeholder="Select hire date" className="w-full" />
+          </div>
+          <div className="flex-1">
+            <Input type="time" value={hireTime} onChange={(e) => setHireTime(e.target.value)}/>
+          </div>
+        </div>
+        <Textarea  placeholder="Message to candidate..." value={interviewMessage} onChange={(e) => setInterviewMessage(e.target.value)}  rows={3}/>
       </ReusableDialog>
 
       <ReusableDialog
@@ -402,19 +403,33 @@ export const JobDetailsView: React.FC<JobDetailsViewProps> = ({ job, onBack }) =
         onConfirm={handleHireSchedule}
       >
         {/* isi custom */}
-        <input
-          type="datetime-local"
-          value={hireDate}
-          onChange={(e) => setHireDate(e.target.value)}
-          className="w-full border rounded px-2 py-1 mb-3"
-        />
-        <textarea
+        <div className="flex gap-3 mb-3">
+          <div className="flex-1">
+            <DatePicker value={hireDate || undefined} onChange={setHireDate} placeholder="Select hire date" className="w-full" />
+          </div>
+          <div className="flex-1">
+            <Input type="time" value={hireTime} onChange={(e) => setHireTime(e.target.value)}/>
+          </div>
+        </div>
+        <Textarea
           placeholder="message to candidate..."
           value={hireMessage}
           onChange={(e) => setHireMessage(e.target.value)}
-          className="w-full border rounded px-2 py-1"
+          // className="w-full border rounded px-2 py-1"
           rows={3}
         />
+      </ReusableDialog>
+
+      <ReusableDialog
+        open={activeDialog === "reject"}
+        onOpenChange={(open) => setActiveDialog(open ? "reject" : null) }
+        title={"Reject Candidate : " + applicantName}
+        description="Fill in the message to be sent to the candidate."
+        confirmText="Reject Candidate"
+        onConfirm={handleReject}
+      >
+        {/* isi custom */}
+        <Textarea placeholder="message to candidate..." value={rejectMessage || undefined} onChange={(e) => setRejectMessage(e.target.value)} rows={3}/>
       </ReusableDialog>
     </div>
   );

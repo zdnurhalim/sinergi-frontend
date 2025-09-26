@@ -16,20 +16,33 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+interface Option {
+  value: string;
+  label: string;
+}
+
 interface JobsFilterProps {
   category: string;
   onCategoryChange: (value: string) => void;
+  status: string;
+  onStatusChange: (value: string) => void;
   search: string;
   onSearchChange: (value: string) => void;
   onReset: () => void;
+  categoryOptions: Option[];
+  statusOptions: Option[];
 }
 
 export const JobsFilter: React.FC<JobsFilterProps> = ({
   category,
   onCategoryChange,
+  status,
+  onStatusChange,
   search,
   onSearchChange,
   onReset,
+  categoryOptions,
+  statusOptions,
 }) => {
   const navigate = useNavigate();
   return (
@@ -62,11 +75,27 @@ export const JobsFilter: React.FC<JobsFilterProps> = ({
                 <SelectValue placeholder="Filter by category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="engineering">Engineering</SelectItem>
-                <SelectItem value="design">Design</SelectItem>
-                <SelectItem value="marketing">Marketing</SelectItem>
-                <SelectItem value="sales">Sales</SelectItem>
+                {categoryOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex-1 space-y-2">
+            <h4 className="text-sm font-medium text-gray-700">Job Status</h4>
+            <Select value={status} onValueChange={onStatusChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by category" />
+              </SelectTrigger>
+              <SelectContent>
+                {statusOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
