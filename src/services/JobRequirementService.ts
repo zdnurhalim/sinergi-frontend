@@ -5,6 +5,8 @@ export interface GuestJobAdsPayload {
 
 export interface GenerateJobAdPayload {
   job_requirement_id: number;
+  company_description: string;
+  talent_description: string;
 }
 
 export class JobRequirementService {
