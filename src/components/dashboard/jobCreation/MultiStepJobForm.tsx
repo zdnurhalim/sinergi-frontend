@@ -16,11 +16,13 @@ import { DatePicker } from "@/components/reusable/Datepicker";
 export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }) => {
   
   const token = useAuthToken(); 
-  const jobRequirement = useSelector(
-    (state: RootState) => state.jobRequirement.data
-  );
+  const jobRequirement = useSelector( (state: RootState) => state.jobRequirement.data);
   const jobRequirementId = jobRequirement?.id || null;
-  console.log("Job Requirement ID:", jobRequirementId);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  //console.log("data:", jobRequirement)
+  //console.log("Job Requirement ID:", jobRequirementId);
 
   useEffect(() => {
     const fetchJobData = async () => {
@@ -124,30 +126,48 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
     navigate("/dashboard/pricing");
   };
 
-  const handlePublishNow = () => {
+  const handlePublishNow = async () => {
     console.log("Publish Now", jobDetails);
-    // redirect ke PricingPage
-    navigate("/dashboard/pricing");
+    if (!token || !jobRequirementId) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const service = new JobRequirementService();
+
+      // gabungkan jobDetails + companyDetails sesuai type backend
+      const payload = {
+        company_description: companyDetails.companyName,
+        talent_description: companyDetails.otherInformation,
+        specific_details: jobDetails.specificDetails
+          .split(",")
+          .map((s) => s.trim()),
+        salary_min: jobDetails.salaryMin.toString(),
+        salary_max: jobDetails.salaryMax.toString(),
+        daily_tasks: jobDetails.dailyTasks,
+        age_limitation: jobDetails.ageMax.toString(),
+        gender_preference: jobDetails.gender,
+        desired_position: jobDetails.position,
+        company_size: companyDetails.companySize,
+        industry: companyDetails.industry,
+        other_information: companyDetails.otherInformation,
+        vacancy_deadline: jobDetails.vacancyDeadline,
+      };
+
+      const result = await service.updateJobAd(jobRequirementId, payload, token);
+      console.log("Update sukses:", result);
+
+      if (onComplete) onComplete(result);
+      } catch (err: any) {
+        setError(err.message || "Update gagal");
+      } finally {
+        setLoading(false);
+      }
   };
 
-
   // const handleProceed = () => setAlertOpen(true);
-  const handleProceed = (jobId?: string) => {
-    const payload = {
-      company: companyDetails,
-      job: jobDetails,
-      preferences: jobAdPreferences,
-      jobId, // kirim jobId jika ada
-    };
-
-    if (jobId) {
-      console.log("Update Job:", payload);
-      // panggil API update
-    } else {
-      console.log("Generate Job Ad:", payload);
-      setAlertOpen(true);
-      // panggil API create
-    }
+  const handleProceed = () => {
+    setAlertOpen(true);
   };
 
   const updateJobDetails = (field: keyof JobDetails, value: string) => {
@@ -158,21 +178,21 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
     setJobAdPreferences(prev => ({ ...prev, [field]: value }));
   };
 
-  // di dalam component
-  const { jobId } = useParams<{ jobId: string }>();
+  // // di dalam component
+  // const { jobId } = useParams<{ jobId: string }>();
 
-  // bisa pakai jobId untuk fetch data awal
-  useEffect(() => {
-    if (jobId) {
-      // fetch job data by id
-      // misal:
-      // fetchJobById(jobId).then(data => {
-      //   setCompanyDetails(data.company);
-      //   setJobDetails(data.job);
-      //   setJobAdPreferences(data.preferences);
-      // });
-    }
-  }, [jobId]);
+  // // bisa pakai jobId untuk fetch data awal
+  // useEffect(() => {
+  //   if (jobId) {
+  //     // fetch job data by id
+  //     // misal:
+  //     // fetchJobById(jobId).then(data => {
+  //     //   setCompanyDetails(data.company);
+  //     //   setJobDetails(data.job);
+  //     //   setJobAdPreferences(data.preferences);
+  //     // });
+  //   }
+  // }, [jobId]);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 max-w-5xl mx-auto">
@@ -437,10 +457,10 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
         ) : (
           <Button
             type="button"
-            onClick={() => handleProceed(jobId)}
+            onClick={() => handleProceed()}
             className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
           >
-            {jobId ? "Update Jobs" : "Generate Job Ad"}
+              Generate Job Ad
             <ArrowRight className="h-4 w-4" />
           </Button>
         )}

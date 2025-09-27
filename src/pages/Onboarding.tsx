@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '@/components/onboarding/Header';
 import GlassmorphicCard from '@/components/onboarding/GlassmorphicCard';
 import RegistrationCard from '@/components/onboarding/RegistrationCard';
-import { setJobRequirement, setError, setLoading } from '@/store/jobRequirementSlice';
+import { setJobRequirement, setError, setLoading } from '@/store/JobRequirementSlice';
 import { setAuth, setAuthLoading, setAuthError } from '@/store/AuthSlice';
 import { useDispatch } from 'react-redux';
 
@@ -89,7 +89,7 @@ const Onboarding = () => {
   const handleLogin = () => {
     // Handle login (you can later integrate with authentication)
     console.log('Login requested');
-    navigate('/dashboard');
+    navigate('/login');
   };
 
   const handleBack = () => {
