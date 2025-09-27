@@ -83,6 +83,7 @@ export default function CreateJobPage() {
   const token = useAuthToken(); 
   const jobDescription = jobRequirement?.talent_description || "";
   const jobRequirementId = jobRequirement?.id || null;
+  const companyDescription = jobRequirement?.company_description || "";
 
   const [aiFormData, setAiFormData] = useState<{ jobDescription?: string; companyDescription?: string; }>({
     jobDescription,
@@ -98,7 +99,7 @@ export default function CreateJobPage() {
 
     try {
       const service = new JobRequirementService();
-      const result = await service.generateJobAd({ job_requirement_id: jobRequirementId},token);
+      const result = await service.generateJobAd({ job_requirement_id: jobRequirementId, company_description: companyDescription,  talent_description: jobDescription },token);
       dispatch(setJobRequirement(result.data));
       dispatch(setError(null));
       // Update state dengan hasil API
