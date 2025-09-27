@@ -75,7 +75,7 @@ const Onboarding = () => {
       dispatch(setAuth({ data: authData, token }));
       dispatch(setAuthLoading(false));
       
-      navigate('/dashboard');
+      navigate('/dashboard/create-job');
     } catch (error) {
       if (error.status === 422 && error.errors) {
         setFormErrors(error.errors);

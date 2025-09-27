@@ -1,15 +1,70 @@
 import React, { useState, useEffect} from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useSelector } from "react-redux";
+import { useAuthToken } from "@/hooks/useAuthToken";
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
 import { ReusableAlert } from '@/components/reusable/AlertDialog';
 import { CompanyDetails, JobDetails, JobAdPreferences, MultiStepJobFormProps } from "@/types/job";
 import { useParams } from "react-router-dom";
+import { RootState } from "@/store/store";
+import { JobRequirementService } from "@/services/JobRequirementService"; 
 import { useNavigate } from "react-router-dom";
 import { DatePicker } from "@/components/reusable/Datepicker";
 
 export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }) => {
+  
+  const token = useAuthToken(); 
+  const jobRequirement = useSelector(
+    (state: RootState) => state.jobRequirement.data
+  );
+  const jobRequirementId = jobRequirement?.id || null;
+  console.log("Job Requirement ID:", jobRequirementId);
+
+  useEffect(() => {
+    const fetchJobData = async () => {
+      if (!jobRequirementId) return;
+
+      if (!token) return;
+
+      try {
+        const service = new JobRequirementService();
+        const res = await service.getJobAdById(jobRequirementId, token);
+
+        const jobData = res.data?.job_requirement;
+        if (!jobData) return;
+
+
+         setJobDetails({
+          position: jobData.position || '',
+          dailyTasks: jobData.daily_tasks || '',
+          salaryMin: jobData.salary_min || 0,
+          salaryMax: jobData.salary_max || 0,
+          ageMax: jobData.age_limitation ? parseInt(jobData.age_limitation) : 0,
+          gender: jobData.gender_preference || '',
+          vacancyDeadline: '', // bisa diisi jika ada field tanggal
+          specificDetails: Array.isArray(jobData.specific_details) 
+            ? jobData.specific_details.join(", ") 
+            : jobData.specific_details || ''
+        });
+
+        setCompanyDetails({
+          companyName: jobData.company_description || '',
+          industry: '', 
+          companySize: jobData.company_size || '', 
+          otherInformation: jobData.talent_description || ''
+        });
+
+      } catch (error) {
+        console.error("Failed to fetch job ad by id", error);
+      }
+    };
+
+    fetchJobData();
+  }, [jobRequirementId]);
+  
+
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [alertOpen, setAlertOpen] = useState(false);
