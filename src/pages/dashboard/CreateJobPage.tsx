@@ -7,6 +7,12 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { useAuthToken } from "@/hooks/useAuthToken";
+import { JobRequirementService } from "@/services/JobRequirementService";
+import { setJobRequirement, setError, setLoading } from '@/store/jobRequirementSlice';
+import { useDispatch } from 'react-redux';
 
 /* -------------------- Stepper Component -------------------- */
 function Stepper({ step }: { step: string }) {
@@ -67,31 +73,65 @@ function Stepper({ step }: { step: string }) {
 
 /* -------------------- Parent Page -------------------- */
 export default function CreateJobPage() {
+  const jobRequirement = useSelector(
+    (state: RootState) => state.jobRequirement.data
+  );
+  const dispatch = useDispatch();
   const [step, setStep] = useState<"choice" | "aiPrompt" | "jobVersions" | "multiStep">("choice");
-  const [jobFormData, setJobFormData] = useState<any>(null);
-  const [selectedVersion, setSelectedVersion] = useState<"A" | "B" | "C" | null>(null);
-  const [aiFormData, setAiFormData] = useState<{ jobDescription?: string }>({});
+  const [jobFormData, setJobFormData] = useState<unknown>(null);
+  const [selectedVersion, setSelectedVersion] = useState<"version_1" | "version_2" | "C" | null>(null);
+  const token = useAuthToken(); 
+  const jobDescription = jobRequirement?.talent_description || "";
+  const jobRequirementId = jobRequirement?.id || null;
+
+  const [aiFormData, setAiFormData] = useState<{ jobDescription?: string; companyDescription?: string; }>({
+    jobDescription,
+    companyDescription: jobRequirement?.company_description || "",
+  });
   const [isProcessing, setIsProcessing] = useState(false);
-  const handleComplete = (data: any) => {
+  const handleComplete = (data: unknown) => {
     setJobFormData(data);
   };
    // Fungsi untuk Generate Versions dengan loader
-  const handleGenerateVersions = () => {
-  setIsProcessing(true); // loader muncul
+  const handleGenerateVersions = async () => {
+    setIsProcessing(true); // loader muncul
 
-  // Simulasi AI processing (3 detik)
-  setTimeout(() => {
-    setJobFormData({
-      company: { companyName: "Your Company" },
-      job: {
-        position: "Generated Position",
-        dailyTasks: aiFormData.jobDescription || "",
-      },
-    });
+    try {
+      const service = new JobRequirementService();
+      const result = await service.generateJobAd({ job_requirement_id: jobRequirementId},token);
+      dispatch(setJobRequirement(result.data));
+      dispatch(setError(null));
+      // Update state dengan hasil API
+      setJobFormData({
+        company: { companyName: result.company_name || "Your Company" },
+        job: {
+          position: result.position || "Generated Position",
+          dailyTasks: result.daily_tasks || aiFormData.jobDescription || "",
+        },
+      });
 
-    setIsProcessing(false);  // selesai, loader hilang
-    setStep("jobVersions");  // baru ganti step
-  }, 1500);
+      setIsProcessing(false);
+      // Ganti step ke jobVersions
+      setStep("jobVersions");
+    } catch (error) {
+      console.error("Failed to generate job versions:", error);
+    } finally {
+      setIsProcessing(false); // loader hilang
+    }
+
+    // Simulasi AI processing (3 detik)
+    // setTimeout(() => {
+    //   setJobFormData({
+    //     company: { companyName: "Your Company" },
+    //     job: {
+    //       position: "Generated Position",
+    //       dailyTasks: aiFormData.jobDescription || "",
+    //     },
+    //   });
+
+    //   setIsProcessing(false);  // selesai, loader hilang
+    //   setStep("jobVersions");  // baru ganti step
+    // }, 1500);
 };
 
   return (
@@ -162,9 +202,25 @@ export default function CreateJobPage() {
                 onChange={(e) =>
                   setAiFormData((prev) => ({ ...prev, jobDescription: e.target.value }))
                 }
+                style={{ width: "100%", height: "150px" }}
               />
             </div>
           </CardContent>
+
+          <CardContent className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">Company Description</label>
+              <Textarea
+                placeholder="Describe the talent you are looking for..."
+                value={aiFormData.companyDescription || ""}
+                onChange={(e) =>
+                  setAiFormData((prev) => ({ ...prev, companyDescription: e.target.value }))
+                }
+                style={{ width: "100%", height: "150px" }}
+              />
+            </div>
+          </CardContent>
+
           <CardFooter className="flex justify-between">
             <Button variant="outline" onClick={() => setStep("choice")}>Back</Button>
             <Button onClick={handleGenerateVersions}>Generate Versions</Button> {/* <-- Panggil loader */}
@@ -193,7 +249,6 @@ export default function CreateJobPage() {
       {/* JobVersions */}
       {step === "jobVersions" && jobFormData && (
         <JobVersions
-          jobFormData={jobFormData}
           selectedVersion={selectedVersion}
           onChooseVersion={(v) => {
             setSelectedVersion(v);

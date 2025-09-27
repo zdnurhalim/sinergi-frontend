@@ -15,6 +15,7 @@ export interface JobRequirement {
     skills_requirement: string[];
     application_process: string;
     education_requirement: string;
+    description: string;
     experience_requirement: string[];
 }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface JobVersionCardProps {
-  version: 'A' | 'B';
+  version: string;
   title: string;
   content: string;
   onChoose: () => void;
@@ -67,7 +67,7 @@ export const JobVersionCard: React.FC<JobVersionCardProps> = ({
       
       {/* Content - Takes up available space */}
       <div className="px-6 pt-6 pb-4 flex-1 overflow-y-auto">
-        <div className="space-y-2">
+        <div className="space-y-2 text-justify">
           {formatContent(content)}
         </div>
       </div>
