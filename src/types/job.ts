@@ -1,9 +1,10 @@
-export interface Job {
+// Type lama untuk JobsList
+export interface JobMapping {
   id: number;
   title: string;
   company: string;
   description: string;
-  status: 'draft' | 'published' | 'closed';
+  status: string;
   applicants: number;
   createdAt: string;
   category: string;

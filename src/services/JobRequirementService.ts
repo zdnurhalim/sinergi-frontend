@@ -96,4 +96,11 @@ export class JobRequirementService {
       return this.handleResponse(res);
     }
 
+    async getAllJobAds(token?: string) {
+      const headers: any = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const res = await fetch(`${this.baseUrl}/job-ads`, { headers });
+      return this.handleResponse(res);
+    }
+
 }
