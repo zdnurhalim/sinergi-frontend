@@ -4,15 +4,16 @@ interface RegistrationCardProps {
   onBack?: () => void;
   onRegister?: (data: { email: string; password: string; fullName: string; company: string }) => void;
   onLogin?: () => void;
+  errors?: { [key: string]: string[] };
 }
 
-const RegistrationCard: React.FC<RegistrationCardProps> = ({ onBack, onRegister, onLogin }) => {
+const RegistrationCard: React.FC<RegistrationCardProps> = ({ onBack, onRegister, onLogin, errors  }) => {
   const [formData, setFormData] = useState({
-    fullName: '',
+    name: '',
     email: '',
     company: '',
     password: '',
-    confirmPassword: ''
+    password_confirmation: ''
   });
   const [isLogin, setIsLogin] = useState(false);
 
@@ -34,7 +35,7 @@ const RegistrationCard: React.FC<RegistrationCardProps> = ({ onBack, onRegister,
         onRegister({
           email: formData.email,
           password: formData.password,
-          fullName: formData.fullName,
+          fullName: formData.name,
           company: formData.company
         });
       }
@@ -71,12 +72,19 @@ const RegistrationCard: React.FC<RegistrationCardProps> = ({ onBack, onRegister,
                 </label>
                 <input
                   type="text"
-                  value={formData.fullName}
-                  onChange={(e) => handleInputChange('fullName', e.target.value)}
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
                   placeholder="Enter your full name"
                   className="w-full text-xs text-[#F3F0F2] tracking-[0.24px] leading-loose mt-2 px-6 py-3 rounded-lg border border-[#A49098] bg-transparent focus:outline-none focus:border-white transition-colors duration-200 placeholder:text-[#F3F0F2] max-md:px-5"
                   required
                 />
+
+                {errors?.name && (
+                  <div className="text-red-500 text-sm mt-1 whitespace-normal break-words max-w-md">
+                    {errors.name[0]}
+                  </div>
+                )}
+                
               </div>
 
               <div className="w-full">
@@ -93,6 +101,11 @@ const RegistrationCard: React.FC<RegistrationCardProps> = ({ onBack, onRegister,
                   className="w-full text-xs text-[#F3F0F2] tracking-[0.24px] leading-loose mt-2 px-6 py-3 rounded-lg border border-[#A49098] bg-transparent focus:outline-none focus:border-white transition-colors duration-200 placeholder:text-[#F3F0F2] max-md:px-5"
                   required
                 />
+                {errors?.company && (
+                  <div className="text-red-500 text-sm mt-1 whitespace-normal break-words max-w-md">
+                    {errors.company[0]}
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -111,6 +124,11 @@ const RegistrationCard: React.FC<RegistrationCardProps> = ({ onBack, onRegister,
               className="w-full text-xs text-[#F3F0F2] tracking-[0.24px] leading-loose mt-2 px-6 py-3 rounded-lg border border-[#A49098] bg-transparent focus:outline-none focus:border-white transition-colors duration-200 placeholder:text-[#F3F0F2] max-md:px-5"
               required
             />
+            {errors?.email && (
+              <div className="text-red-500 text-sm mt-1 whitespace-normal break-words max-w-md">
+                {errors.email[0]}
+              </div>
+            )}
           </div>
 
           <div className="w-full">
@@ -127,6 +145,11 @@ const RegistrationCard: React.FC<RegistrationCardProps> = ({ onBack, onRegister,
               className="w-full text-xs text-[#F3F0F2] tracking-[0.24px] leading-loose mt-2 px-6 py-3 rounded-lg border border-[#A49098] bg-transparent focus:outline-none focus:border-white transition-colors duration-200 placeholder:text-[#F3F0F2] max-md:px-5"
               required
             />
+            {errors?.password && (
+                <div className="text-red-500 text-sm mt-1 whitespace-normal break-words max-w-md">
+                  {errors.password[0]}
+                </div>
+            )}
           </div>
 
           {!isLogin && (
@@ -138,12 +161,17 @@ const RegistrationCard: React.FC<RegistrationCardProps> = ({ onBack, onRegister,
               </label>
               <input
                 type="password"
-                value={formData.confirmPassword}
-                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                value={formData.password_confirmation}
+                onChange={(e) => handleInputChange('password_confirmation', e.target.value)}
                 placeholder="Confirm your password"
                 className="w-full text-xs text-[#F3F0F2] tracking-[0.24px] leading-loose mt-2 px-6 py-3 rounded-lg border border-[#A49098] bg-transparent focus:outline-none focus:border-white transition-colors duration-200 placeholder:text-[#F3F0F2] max-md:px-5"
                 required
               />
+              {errors?.password_confirmation && (
+                <div className="text-red-500 text-sm mt-1 whitespace-normal break-words max-w-md">
+                  {errors.password_confirmation[0]}
+                </div>
+              )}
             </div>
           )}
         </div>
