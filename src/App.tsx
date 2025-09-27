@@ -21,6 +21,7 @@ import { ApplicantProfilePage } from "./pages/dashboard/jobs/ApplicantProfile";
 import { MultiStepJobForm } from "./components/dashboard/jobCreation/MultiStepJobForm";
 import { PricingPage } from "./pages/dashboard/payment/PricingPage";
 import { CheckoutPage } from "./pages/dashboard/payment/CheckoutPage";
+import LoginPage from "./pages/landing-page/loginPage";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/login" element={<LoginPage />} />
             <Route path="/onboarding" element={<Onboarding />} />
 
             {/* Nested Dashboard Routes */}

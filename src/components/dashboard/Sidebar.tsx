@@ -2,6 +2,11 @@ import React, { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { List, Briefcase, PlusCircle, Building2, User, LogOut, LayoutDashboard, ChevronDown, ChevronRight, ContactRound} from "lucide-react"; // icon lucide-react
 
+import { useDispatch, useSelector } from "react-redux";
+import { clearAuth } from "@/store/AuthSlice";
+import { AuthenticationService } from "@/services/AuthenticationService";
+import { RootState } from "@/store/store";
+
 const menu = [
   { name: "Dashboard", to: "/dashboard/mainDashboard", icon: LayoutDashboard },
   {
@@ -35,6 +40,24 @@ export default function Sidebar() {
       ...prev,
       [name]: !prev[name],
     }));
+  };
+
+  const dispatch = useDispatch();
+  const auth = useSelector((state: RootState) => state.auth);
+  const authService = new AuthenticationService();
+
+  const handleLogout = async () => {
+      try {
+          if (auth.token) {
+              await authService.logout(auth.token);
+          }
+      } catch (err) {
+          console.error("Logout failed", err);
+      } finally {
+          dispatch(clearAuth());
+          localStorage.removeItem("authToken");
+          window.location.href = "/login";
+      }
   };
 
   return (
@@ -133,7 +156,8 @@ export default function Sidebar() {
           <User className="w-5 h-5" />
           <span>My Profile</span>
         </NavLink>
-        <button className="flex items-center gap-3 w-full text-left px-3 py-2 rounded-md text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors">
+        <button onClick={handleLogout} 
+          className="flex items-center gap-3 w-full text-left px-3 py-2 rounded-md text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors">
           <LogOut className="w-5 h-5" />
           <span>Logout</span>
         </button>

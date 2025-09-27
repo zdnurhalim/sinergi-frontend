@@ -6,7 +6,7 @@ import { Edit } from "lucide-react";
 import { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
 import { useAuthToken } from "@/hooks/useAuthToken";
-import { JobRequirementResponse } from "@/types/JobRequirement";
+// import { JobRequirementResponse } from "@/types/JobRequirement";
 import { JobRequirementService } from "@/services/JobRequirementService"; 
 
 
@@ -38,6 +38,8 @@ export default function JobVersions({  selectedVersion, onChooseVersion, onBack 
     }
 
     try {
+      console.log(data)
+      console.log("token --> ", token)
       console.log("Calling API for version:", version);
 
       const res = await service.chooseJobVersion(data.id, version, token);

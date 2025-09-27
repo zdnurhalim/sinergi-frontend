@@ -1,3 +1,4 @@
+import { JobRequirementResponse } from "@/types/JobRequirement";
 export interface GuestJobAdsPayload {
   company_description: string;
   talent_description: string;
@@ -54,7 +55,7 @@ export class JobRequirementService {
     }
 
     async chooseJobVersion(job_requirement_id: number, version: "version_1" | "version_2", token: string) {
-      const res = await fetch(`${this.baseUrl}/job-ads/version/1`, {
+      const res = await fetch(`${this.baseUrl}/job-ads/version/${job_requirement_id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -78,4 +79,21 @@ export class JobRequirementService {
         }); 
         return this.handleResponse(res);
     }
+
+    async updateJobAd(
+      id: number,
+      payload: Partial<JobRequirementResponse>,
+      token: string
+    ) {
+      const res = await fetch(`${this.baseUrl}/job-ads/update/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      return this.handleResponse(res);
+    }
+
 }

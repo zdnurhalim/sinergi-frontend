@@ -17,6 +17,7 @@ export interface JobRequirement {
     education_requirement: string;
     description: string;
     experience_requirement: string[];
+    vacancy_deadline: string;
 }
 
 export interface GenerateContent {
