@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect  } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { CompanyService, CompanyResponse } from "@/services/CompanyService"; 
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 interface CompanyData {
   companyName: string;
@@ -21,12 +24,45 @@ interface CompanyData {
 }
 
 export const CompanySettings: React.FC = () => {
+
+  const token = useSelector((state: RootState) => state.auth.token);
+  const companyId = useSelector((state: RootState) => state.auth.data?.company?.id);
+
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchCompany = async () => {
+      if (!companyId || !token) return;
+
+      try {
+        setLoading(true);
+        const service = new CompanyService();
+        const response: CompanyResponse = await service.getCompany(companyId, token);
+
+        const data = response.data;
+        setCompanyData({
+          companyName: data.company_name,
+          industry: data.industry || "",
+          companySize: data.company_size || "",
+          otherInformation: data.other_information || "",
+          website: data.website || "",
+        });
+      } catch (err) {
+        console.error("Failed to fetch company:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCompany();
+  }, [companyId, token]);
+
   const [companyData, setCompanyData] = useState<CompanyData>({
-    companyName: "Sinergi AI",
-    industry: "Technology",
-    companySize: "enterprise",
-    otherInformation: "AI-powered job recruitment platform.",
-    website: "https://sinergi.ai",
+    companyName: "",
+    industry: "",
+    companySize: "",
+    otherInformation: "",
+    website: "",
   });
 
   const [open, setOpen] = useState(false);
@@ -38,10 +74,33 @@ export const CompanySettings: React.FC = () => {
     }));
   };
 
-  const handleSave = () => {
-    console.log("Saving company data:", companyData);
-    setOpen(false);
-    // TODO: Integrate with backend API
+  const handleSave = async () => {
+    if (!companyId || !token) return;
+    
+    try {
+      setLoading(true);
+      const service = new CompanyService();
+    
+      await service.updateCompany(
+        companyId,
+        {
+          id: companyId,
+          company_name: companyData.companyName,
+          industry: companyData.industry || null,
+          company_size: companyData.companySize || null,
+          other_information: companyData.otherInformation || null,
+          website: companyData.website || null,
+        },
+        token
+      );
+    
+      console.log("Company updated successfully");
+      setOpen(false);
+    } catch (err) {
+      console.error("Failed to update company:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const industries = [
