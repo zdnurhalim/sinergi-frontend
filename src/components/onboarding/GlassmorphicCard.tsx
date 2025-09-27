@@ -3,9 +3,10 @@ import FormSection from './FormSection';
 
 interface GlassmorphicCardProps {
   onNext?: (companyInfo: string, talentInfo: string) => void;
+  errors?: { [key: string]: string[] };
 }
 
-const GlassmorphicCard: React.FC<GlassmorphicCardProps> = ({ onNext }) => {
+const GlassmorphicCard: React.FC<GlassmorphicCardProps> = ({ onNext, errors }) => {
   const [companyInfo, setCompanyInfo] = useState('');
   const [talentInfo, setTalentInfo] = useState('');
 
@@ -31,6 +32,11 @@ const GlassmorphicCard: React.FC<GlassmorphicCardProps> = ({ onNext }) => {
             value={companyInfo}
             onChange={setCompanyInfo}
           />
+          {errors?.company_description && (
+            <div className="text-red-500 text-sm mt-1 whitespace-normal break-words max-w-md">
+              {errors.company_description[0]}
+            </div>
+          )}
           
           <div className="mt-8">
             <FormSection
@@ -40,6 +46,11 @@ const GlassmorphicCard: React.FC<GlassmorphicCardProps> = ({ onNext }) => {
               onChange={setTalentInfo}
             />
           </div>
+          {errors?.talent_description && (
+            <div className="text-red-500 text-sm mt-1 whitespace-normal break-words max-w-md">
+              {errors.talent_description[0]}
+            </div>
+          )}
         </div>
         
         <div className="flex w-full flex-col text-[13px] text-[#66575C] font-semibold whitespace-nowrap tracking-[0.52px] leading-none mt-4 max-md:max-w-full">
