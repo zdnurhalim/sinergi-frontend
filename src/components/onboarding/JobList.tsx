@@ -62,12 +62,12 @@ function JobList() {
 
   return (
     <section
-      className={`relative transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+      className={`relative transition-all duration-700 text-black/70 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
     >
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-semibold tracking-tight" style={{ letterSpacing: '-0.02em' }}>
-            Lowongan Terbaru
+            Latest Vacancies
           </h2>
           <a
             href="#jobs"

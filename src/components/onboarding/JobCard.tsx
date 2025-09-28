@@ -20,9 +20,9 @@ const JobCard: React.FC<JobCardProps> = ({ title, company, location, salary, typ
 
   return (
     <div
-      className={`group rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl shadow-lg transform transition-all duration-500
+      className={`group rounded-2xl border border-white/10 bg-black/[0.15] p-5 backdrop-blur-xl shadow-lg transform transition-all duration-500
         ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}
-        hover:scale-105 hover:bg-white/[0.08]
+        hover:scale-105 hover:bg-black/[0.08]
       `}
       style={{ transitionDelay: '50ms' }}
     >
