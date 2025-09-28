@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import FormSection from './FormSection';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Terminal } from 'lucide-react';
 
 interface GlassmorphicCardProps {
   onNext?: (companyInfo: string, talentInfo: string) => void;
@@ -9,23 +12,24 @@ interface GlassmorphicCardProps {
 const GlassmorphicCard: React.FC<GlassmorphicCardProps> = ({ onNext, errors }) => {
   const [companyInfo, setCompanyInfo] = useState('');
   const [talentInfo, setTalentInfo] = useState('');
+  const navigate = useNavigate();
 
   const handleNext = () => {
-    if (onNext) {
-      onNext(companyInfo, talentInfo);
-    }
+    if (onNext) onNext(companyInfo, talentInfo);
   };
 
   return (
-    <main className="relative shadow-[2px_2px_24px_12px_rgba(255,255,255,0.25)_inset,1px_24px_40px_0_rgba(0,0,0,0.25)] backdrop-blur-[30px] bg-[linear-gradient(0deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.05)_100%),linear-gradient(150deg,rgba(255,255,255,0.05)_4.38%,rgba(203,203,203,0.05)_35.03%,rgba(255,255,255,0.05)_63.26%,rgba(203,203,203,0.05)_96.5%)] self-center w-[726px] max-w-full font-normal mt-[113px] p-6 rounded-3xl border-[0.6px] border-solid border-[rgba(255,255,255,0.50)] max-md:mt-10 max-md:px-5">
-      <h1 className="text-white text-base leading-loose tracking-[0.24px] max-md:max-w-full">
-        Let's try Our Sinergi.AI recruiter module
+    <main
+      className="relative w-full max-w-2xl p-8 rounded-3xl border border-white/20 backdrop-blur-xl bg-white/5 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] transition-transform duration-300 hover:scale-105"
+    >
+      <h1 className="text-white text-lg font-semibold tracking-tight mb-4">
+        Let's try our Sinergi.AI recruiter module
       </h1>
-      
-      <hr className="border min-h-0 w-full mt-4 border-[rgba(255,255,255,0.5)] border-solid max-md:max-w-full" />
-      
-      <form className="w-full mt-4 max-md:max-w-full" onSubmit={(e) => e.preventDefault()}>
-        <div className="w-full pb-10 max-md:max-w-full">
+
+      <hr className="border-white/20 mb-6" />
+
+      <form className="w-full" onSubmit={(e) => e.preventDefault()}>
+        <div className="space-y-6">
           <FormSection
             id="company-info"
             label="Start with short description about your company industry, employee size, company size (small, micro, middle or enterprise) and any other information that you'd like to share"
@@ -33,39 +37,43 @@ const GlassmorphicCard: React.FC<GlassmorphicCardProps> = ({ onNext, errors }) =
             onChange={setCompanyInfo}
           />
           {errors?.company_description && (
-            <div className="text-red-500 text-sm mt-1 whitespace-normal break-words max-w-md">
+            <div className="text-red-500 text-sm break-words">
               {errors.company_description[0]}
             </div>
           )}
-          
-          <div className="mt-8">
-            <FormSection
-              id="talent-info"
-              label="Describe the talent that you looking for. What is their position, what is their daily task, range of salary that you can offer to this talent, and any other specific detail that you want to add"
-              value={talentInfo}
-              onChange={setTalentInfo}
-            />
-          </div>
+
+          <FormSection
+            id="talent-info"
+            label="Describe the talent that you are looking for. Include position, daily tasks, salary range, and any other specific details."
+            value={talentInfo}
+            onChange={setTalentInfo}
+          />
           {errors?.talent_description && (
-            <div className="text-red-500 text-sm mt-1 whitespace-normal break-words max-w-md">
+            <div className="text-red-500 text-sm break-words">
               {errors.talent_description[0]}
             </div>
           )}
         </div>
-        
-        <div className="flex w-full flex-col text-[13px] text-[#66575C] font-semibold whitespace-nowrap tracking-[0.52px] leading-none mt-4 max-md:max-w-full">
+
+        <div className="mt-8 flex gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            className="flex-1 flex items-center justify-center gap-2 border-white/30 text-white bg-white/5 py-5 rounded-xl"
+            onClick={() => navigate("/")}
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to Home
+          </Button>
+
           <button
             type="button"
             onClick={handleNext}
-            className="justify-center items-center bg-[linear-gradient(90deg,#D7B991_0%,#FFF5E7_100%)] flex min-h-12 w-40 max-w-full gap-2 px-4 py-3 rounded-lg hover:opacity-90 transition-opacity duration-200 focus:outline-none focus:ring-2 focus:ring-[#D7B991] focus:ring-offset-2 focus:ring-offset-transparent"
-            aria-label="Proceed to next step"
+            className="flex-1 flex items-center justify-center gap-2 px-6 py-2 rounded-xl bg-gradient-to-r from-[#f6c178] to-[#aacde5] text-black font-semibold shadow-md hover:brightness-105 transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#aacde5]/50 focus:ring-offset-2"
           >
-            <span className="self-stretch my-auto">
-              Next
-            </span>
-            <div className="self-stretch flex w-6 shrink-0 h-6 my-auto" />
+            <Terminal className="w-4 h-4" /> Generate Prompt
           </button>
         </div>
+
       </form>
     </main>
   );
