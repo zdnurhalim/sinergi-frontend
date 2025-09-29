@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Target, ShieldCheck, Sparkle, Users, CheckCircle2, Wand, List } from 'lucide-react';
+import { Zap, Target, ShieldCheck, Sparkle, Users, CheckCircle2, Wand, List, Briefcase } from 'lucide-react';
 
 function AboutSection() {
   const [visible, setVisible] = useState(false);
@@ -17,44 +17,44 @@ function AboutSection() {
         <div className="grid gap-8 md:grid-cols-2">
           {/* Text Column */}
           <div
-            className={`rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+            className={`rounded-2xl  border border-gray-200/50 shadow-sm  bg-white/[0.8] p-6 backdrop-blur transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
             style={{ transitionDelay: '360ms' }}
           >
-            <h3 className="mb-3 text-2xl font-semibold tracking-tight" style={{ letterSpacing: '-0.02em' }}>
-              Tentang Sinergi.AI
+            <h3 className=" text-black mb-3 text-2xl font-semibold tracking-tight" style={{ letterSpacing: '-0.02em' }}>
+              About Sinergi.AI
             </h3>
-            <p className="text-white/75">
-              Sinergi.AI adalah platform rekrutmen berbasis AI yang membantu perusahaan menemukan kandidat terbaik lebih cepat.
-              Dengan pemahaman konteks bisnis dari deskripsi perusahaan dan posisi, sistem kami merekomendasikan job description, kisaran gaji, dan ranking kandidat yang relevan.
+            <p className="text-black/75">
+              Sinergi.AI is an AI-powered recruitment platform that helps companies find the best candidates faster.
+              By understanding the business context of company and position descriptions, our system recommends relevant job descriptions, salary ranges, and candidate rankings.
             </p>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
+              <div className="flex items-start gap-3 rounded-xl border border-black/10 bg-white/5 p-4">
                 <Zap className="mt-1 text-[#aacde5]" size={24} />
                 <div className="text-sm">
-                  <div className="font-medium">Cepat & Akurat</div>
-                  <div className="text-white/70">Kurangi waktu membuat JD dari jam menjadi menit.</div>
+                  <div className="font-medium text-black">Fast & Acurate</div>
+                  <div className="text-black/70">Reduce the time to create job descriptions from hours to minutes.</div>
                 </div>
               </div>
-              <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
+              <div className="flex items-start gap-3 rounded-xl border border-black/10 bg-white/5 p-4">
                 <Target className="mt-1 text-[#f6c178]" size={24} />
                 <div className="text-sm">
-                  <div className="font-medium">Match yang Tepat</div>
-                  <div className="text-white/70">Skor kesesuaian kandidat dengan kebutuhan.</div>
+                  <div className="font-medium text-black">The Right Match</div>
+                  <div className="text-black/70">Candidate suitability score to needs.</div>
                 </div>
               </div>
-              <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
+              <div className="flex items-start gap-3 rounded-xl border border-black/10 bg-white/5 p-4">
                 <ShieldCheck className="mt-1 text-[#aacde5]" size={24} />
                 <div className="text-sm">
-                  <div className="font-medium">Keamanan Data</div>
-                  <div className="text-white/70">Data Anda terenkripsi dan private.</div>
+                  <div className="font-medium text-black">Data Security</div>
+                  <div className="text-black/70">Your data is encrypted and private.</div>
                 </div>
               </div>
-              <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
+              <div className="flex items-start gap-3 rounded-xl border border-black/10 bg-white/5 p-4">
                 <Sparkle className="mt-1 text-[#f6c178]" size={24} />
                 <div className="text-sm">
-                  <div className="font-medium">Pengalaman Modern</div>
-                  <div className="text-white/70">UI yang bersih, intuitif, dan responsif.</div>
+                  <div className="font-medium text-black">Modern Experience</div>
+                  <div className="text-black/70">Clean UI, intuitive, dan responsive.</div>
                 </div>
               </div>
             </div>
@@ -62,7 +62,7 @@ function AboutSection() {
 
           {/* Visual Column */}
           <div
-            className={`relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+            className={`relative overflow-hidden rounded-2xl border border-gray-200/50 shadow-sm bg-white/[0.8] p-6 backdrop-blur transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
             style={{ transitionDelay: '360ms' }}
           >
             <div
@@ -73,44 +73,44 @@ function AboutSection() {
               }}
             ></div>
 
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/80">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/5 px-3 py-1.5 text-xs text-black/80">
               <Users size={24} />
-              Manfaat untuk Recruiter & Pelamar
+              Benefit for Recruiter & Applicant
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <div className="text-sm font-medium">Untuk Recruiter</div>
-                <ul className="mt-2 space-y-1.5 text-sm text-white/75">
+            <div className="grid gap-4 sm:grid-cols-2 text-black/75">
+              <div className="rounded-xl border border-black/10 bg-white/5 p-4">
+                <div className="text-sm font-medium">For Recruiter</div>
+                <ul className="mt-2 space-y-1.5 text-sm">
                   <li className="inline-flex items-center gap-2">
                     <CheckCircle2 className="text-[#aacde5]" size={20} />
-                    JD otomatis
+                    Automatic Job Desc
                   </li>
                   <li className="inline-flex items-center gap-2">
                     <CheckCircle2 className="text-[#aacde5]" size={20} />
-                    Prediksi gaji
+                    Salary Prediction
                   </li>
                   <li className="inline-flex items-center gap-2">
                     <CheckCircle2 className="text-[#aacde5]" size={20} />
-                    Ranking kandidat
+                    Candidate Rank
                   </li>
                 </ul>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <div className="text-sm font-medium">Untuk Pelamar</div>
-                <ul className="mt-2 space-y-1.5 text-sm text-white/75">
+              <div className="rounded-xl border border-black/10 bg-white/5 p-4 text-black/75">
+                <div className="text-sm font-medium">For Applicant</div>
+                <ul className="mt-2 space-y-1.5 text-sm ">
                   <li className="inline-flex items-center gap-2">
                     <CheckCircle2 className="text-[#f6c178]" size={20} />
-                    Rekomendasi cocok
+                    Match Recomendation
                   </li>
                   <li className="inline-flex items-center gap-2">
                     <CheckCircle2 className="text-[#f6c178]" size={20} />
-                    Profil terstruktur
+                    Structured Profile
                   </li>
                   <li className="inline-flex items-center gap-2">
                     <CheckCircle2 className="text-[#f6c178]" size={20} />
-                    Notifikasi cepat
+                    Fast Notification
                   </li>
                 </ul>
               </div>
@@ -122,14 +122,14 @@ function AboutSection() {
                 className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#f6c178] to-[#aacde5] px-4 py-2.5 text-sm font-semibold text-black transition hover:brightness-110"
               >
                 <Wand size={24} />
-                Mulai Sekarang
+                Start Now
               </a>
               <a
                 href="#jobs"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/85 transition hover:bg-white/[0.08]"
+                className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white/5 px-4 py-2.5 text-sm text-black/85 transition hover:bg-black/[0.02]"
               >
-                <List size={24} />
-                Lihat Lowongan
+                <Briefcase size={24} />
+                See Job Ads
               </a>
             </div>
           </div>

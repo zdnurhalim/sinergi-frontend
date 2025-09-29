@@ -10,9 +10,16 @@ import {
 
 function Footer() {
   return (
-    <footer className="relative mt-8">
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-      <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
+    <footer className="relative mt-8 bg-black/20"
+    style={{
+        backgroundImage:
+          "url('https://api.builder.io/api/v1/image/assets/TEMP/df095bc2f4e8115febab0386b8096ac19c3a4553?placeholderIfAbsent=true')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}>
+      {/* Optional overlay biar teks lebih kebaca */}
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
+      <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 relative z-10">
         <div className="grid gap-8 md:grid-cols-4">
           {/* Branding */}
           <div className="space-y-3">
@@ -23,7 +30,7 @@ function Footer() {
               <span className="text-base font-semibold tracking-tight" style={{ letterSpacing: '-0.02em' }}>Sinergi.AI</span>
             </div>
             <p className="text-sm text-white/70">
-              Menyatukan kandidat dan perusahaan dengan AI yang memahami kebutuhan Anda.
+              Bringing candidates and companies together with AI that understands your needs.
             </p>
             <div className="flex items-center gap-2">
               <a
@@ -42,7 +49,7 @@ function Footer() {
             <ul className="mt-3 space-y-2 text-sm text-white/70">
               <li><a className="hover:text-white" href="#ai">AI Prompting</a></li>
               <li><a className="hover:text-white" href="#home">Highlight Jobs</a></li>
-              <li><a className="hover:text-white" href="#home">Tentang</a></li>
+              <li><a className="hover:text-white" href="#home">About</a></li>
             </ul>
           </div>
 
@@ -50,9 +57,9 @@ function Footer() {
           <div>
             <div className="text-sm font-medium">Perusahaan</div>
             <ul className="mt-3 space-y-2 text-sm text-white/70">
-              <li><a className="hover:text-white" href="#">Karier</a></li>
-              <li><a className="hover:text-white" href="#">Kebijakan Privasi</a></li>
-              <li><a className="hover:text-white" href="#">Syarat Layanan</a></li>
+              <li><a className="hover:text-white" href="#">Carier</a></li>
+              <li><a className="hover:text-white" href="#">Privacy Policy</a></li>
+              <li><a className="hover:text-white" href="#">Terms of Service</a></li>
             </ul>
           </div>
 
@@ -98,6 +105,7 @@ function Footer() {
           </div>
         </div>
       </div>
+      
     </footer>
   );
 }
