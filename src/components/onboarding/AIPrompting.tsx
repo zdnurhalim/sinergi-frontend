@@ -81,9 +81,9 @@ function AIPrompting() {
               <p className="mt-2 text-xs text-black/60 text-center">*AI Result will redirect to another page</p>
             </div>
           </div>
-          <div className="flex justify-between gap-6 mt-5">
+          <div className="md:flex justify-between gap-6 mt-5">
             {/* <!-- Card 1 --> */}
-            <div className="flex flex-col w-1/2 p-6 bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 hover:shadow-md transition">
+            <div className="flex flex-col w-full p-6 bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 hover:shadow-md transition mb-5 md:mb-0">
               <img src="https://images.pexels.com/photos/17485709/pexels-photo-17485709.png" alt="AI illustration" className="w-full h-20 object-cover rounded-md mb-4"/>
               <h3 className="text-xl font-semibold text-gray-800 mb-2 whitespace-pre-line">
                 Sinergi AI help you even
@@ -98,7 +98,7 @@ function AIPrompting() {
             </div>
 
             {/* <!-- Card 2 --> */}
-            <div className="flex flex-col w-1/2 p-6 bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 hover:shadow-md transition">
+            <div className="flex flex-col w-full p-6 bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 hover:shadow-md transition">
               <img src="https://images.pexels.com/photos/17485657/pexels-photo-17485657.png" alt="Learning illustration" className="w-full h-20 object-cover rounded-md mb-4"/>
               <h3 className="text-xl font-semibold text-gray-800 mb-2 whitespace-pre-line">
                 Customized Learning,
