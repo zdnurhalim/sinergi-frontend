@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 function Navbar() {
     const navigate = useNavigate();
   return (
-    <header className="fixed top-0 w-full z-40 bg-white/10 backdrop-blur-md border-b border-white/20">
+    <header className="fixed top-0 w-full z-40 bg-black/20 backdrop-blur-md border-b border-white/20">
 
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 md:px-6">
         <a href="#home" className="group inline-flex items-center gap-2 rounded-md px-2 py-1.5 transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#aacde5]/40">

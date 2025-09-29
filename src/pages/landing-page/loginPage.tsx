@@ -55,7 +55,13 @@ export default function LoginPage() {
 
   return (
     // from-purple-900 via-blue-900 to-indigo-900
-    <div className="min-h-screen flex items-center justify-center p-6 bg-[#0b0e14] antialiased relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-6 antialiased relative overflow-hidden"
+    style={{
+        backgroundImage:
+          "url('https://api.builder.io/api/v1/image/assets/TEMP/df095bc2f4e8115febab0386b8096ac19c3a4553?placeholderIfAbsent=true')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}>
       <div className="pointer-events-none absolute inset-x-0 top-[-20rem] mx-auto h-[40rem] w-[80rem] opacity-60 blur-3xl" aria-hidden="true" style={{ background: 'radial-gradient(ellipse at center, rgba(170,205,229,0.25), rgba(246,193,120,0.18) 40%, rgba(170,205,229,0.1) 60%, transparent 70%)' }}></div>
       <div className="pointer-events-none absolute inset-0 opacity-20" aria-hidden="true" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
       

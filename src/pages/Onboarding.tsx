@@ -77,19 +77,26 @@ const Onboarding = () => {
   const handleBack = () => setStep('form');
 
   return (
-    <div className="min-h-screen relative flex flex-col bg-[#0b0e14] antialiased overflow-hidden">
+    <div className="min-h-screen relative flex flex-col antialiased overflow-hidden"
+    style={{
+        backgroundImage:
+          "url('https://api.builder.io/api/v1/image/assets/TEMP/df095bc2f4e8115febab0386b8096ac19c3a4553?placeholderIfAbsent=true')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}>
       <div className="pointer-events-none absolute inset-x-0 top-[-20rem] mx-auto h-[40rem] w-[80rem] opacity-60 blur-3xl" aria-hidden="true" style={{ background: 'radial-gradient(ellipse at center, rgba(170,205,229,0.25), rgba(246,193,120,0.18) 40%, rgba(170,205,229,0.1) 60%, transparent 70%)' }}></div>
       <div className="pointer-events-none absolute inset-0 opacity-20" aria-hidden="true" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
+      
       {/* Subtle Aurora / Radial Background */}
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_rgba(120,119,198,0.3)_0%,_rgba(255,255,255,0)_70%)]" />
 
       {/* Header */}
-      <div className="relative z-10 flex justify-center pt-8 px-4">
+      <div className="relative z-10 flex justify-center pt-5 px-4">
         <Header onLoginClick={handleLogin} />
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 flex-1 flex items-center justify-center px-4 py-12">
+      <div className="relative z-10 flex-1 flex items-center justify-center px-4 py-5">
         <div className="w-full max-w-2xl space-y-8">
           {step === 'form' ? (
             // <div className="backdrop-blur-xl bg-white/[0.05] border border-white/10 rounded-3xl shadow-2xl p-8 transform transition duration-300 hover:scale-105">
