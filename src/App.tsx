@@ -6,9 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "@/store/store";
 
-import Index from "./pages/Index";
-import Onboarding from "./pages/Onboarding";
+import Index from "./pages/landing-page/Index";
+import Onboarding from "./pages/landing-page/Onboarding";
 import NotFound from "./pages/NotFound";
+import ScrollToTop from "./components/reusable/ScrollToTop";
 
 // dashboard
 import DashboardLayout from "./pages/dashboard/DashboardLayout";
@@ -22,6 +23,9 @@ import { MultiStepJobForm } from "./components/dashboard/jobCreation/MultiStepJo
 import { PricingPage } from "./pages/dashboard/payment/PricingPage";
 import { CheckoutPage } from "./pages/dashboard/payment/CheckoutPage";
 import LoginPage from "./pages/landing-page/loginPage";
+import ExploreJobs from "./pages/landing-page/exploreJobs";
+import LandingPage from "./pages/landing-page/LandingPages";
+import ExploreJobDetail from "./pages/landing-page/exploreJobsDetail";
 
 const queryClient = new QueryClient();
 
@@ -32,8 +36,13 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop /> 
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route element={<Index />}>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/explore-jobs" element={<ExploreJobs />} />
+              <Route path="/explore-jobs/job-detail/:id" element={<ExploreJobDetail />} />
+            </Route>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/onboarding" element={<Onboarding />} />
 

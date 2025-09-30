@@ -1,70 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import JobCard from './JobCard';
+import { JobRequirement } from '@/types/JobRequirement';
+import { useNavigate } from 'react-router-dom';
 
-function JobList() {
+interface JobListProps {
+  jobListSample: JobRequirement[];
+  onSelect: (job: JobRequirement) => void;
+}
+
+function JobList({ jobListSample, onSelect }: JobListProps) {
   const [visible, setVisible] = useState(false);
-
+  const navigate = useNavigate();
   useEffect(() => {
     setVisible(true);
   }, []);
-
-  const jobData = [
-  {
-    title: "Senior Backend Engineer",
-    company: "FinPay",
-    location: "Jakarta",
-    salary: "Rp 18–25 jt",
-    type: "Full-time",
-    workplace: "Hybrid",
-    experience: "Min 1 Years",
-  },
-  {
-    title: "Product Designer",
-    company: "CraftWorks",
-    location: "Bandung",
-    salary: "Rp 12–18 jt",
-    type: "Full-time",
-    workplace: "Remote",
-    experience: "Min 1 Years",
-  },
-  {
-    title: "Frontend Developer",
-    company: "TechNova",
-    location: "Surabaya",
-    salary: "Rp 14–20 jt",
-    type: "Full-time",
-    workplace: "On-site",
-    experience: "Min 1 Years",
-  },
-  {
-    title: "Data Analyst",
-    company: "Insight Labs",
-    location: "Jakarta",
-    salary: "Rp 10–16 jt",
-    type: "Part-time",
-    workplace: "Remote",
-    experience: "Min 1 Years",
-  },
-  {
-    title: "UI/UX Designer",
-    company: "PixelCraft",
-    location: "Yogyakarta",
-    salary: "Rp 11–17 jt",
-    type: "Full-time",
-    workplace: "Hybrid",
-    experience: "Min 1 Years",
-  },
-  {
-    title: "DevOps Engineer",
-    company: "CloudWorks",
-    location: "Bandung",
-    salary: "Rp 16–22 jt",
-    type: "Full-time",
-    workplace: "On-site",
-    experience: "Min 1 Years",
-  },
-];
-
 
   return (
     <section
@@ -76,7 +25,7 @@ function JobList() {
             Latest Vacancies
           </h2>
           <a
-            href="#jobs"
+            onClick={() => navigate('/explore-jobs')}
             className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white/5 px-3 py-2 text-sm text-black/85 transition hover:bg-white/[0.08]"
           >
             Explore Job Ads
@@ -98,8 +47,11 @@ function JobList() {
           </a>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {jobData.map((job, index) => (
-            <JobCard key={index} {...job} />
+          {jobListSample.slice(0, 6).map((job, index) => (
+            <JobCard 
+              key={index}
+              {...job}
+              onClick={() => onSelect(job)}/>
           ))}
         </div>
       </div>

@@ -1,10 +1,10 @@
 import React from "react";
 import {JobCard} from "@/components/dashboard/jobs/JobCard";
-import { Job } from "@/types/job";
+import { JobMapping } from "@/types/job";
 import { Button } from "@/components/ui/button";
 
 interface Props {
-  jobs: Job[];
+  jobs: JobMapping[];
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
   onView: (id: number) => void;
