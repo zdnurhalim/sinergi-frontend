@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "@/store/store";
 
-import Index from "./pages/landing-page/Index";
+import Index from "./pages/landing-page/index";
 import Onboarding from "./pages/landing-page/Onboarding";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/reusable/ScrollToTop";
