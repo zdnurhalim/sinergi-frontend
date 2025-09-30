@@ -4,26 +4,27 @@ import { Eye, Edit2, Trash2, User, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ReusableDialog } from "@/components/reusable/Dialog";
 import { DatePicker } from "@/components/reusable/Datepicker";
+import { JobMapping } from "@/types/job";
 
-export interface Job {
-  id: number;
-  title: string;
-  company: string;
-  description: string;
-  status: 'draft' | 'published' | 'closed';
-  applicants: number;
-  createdAt: string;
-}
+// export interface Job {
+//   id: number;
+//   title: string;
+//   company: string;
+//   description: string;
+//   status: 'draft' | 'published' | 'closed';
+//   applicants: number;
+//   createdAt: string;
+// }
 
 interface JobCardProps {
-  job: Job;
+  job: JobMapping;
   onView: (id: number) => void;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
   className?: string;
 }
 
-const getStatusStyle = (status: Job['status']) => {
+const getStatusStyle = (status: JobMapping['status']) => {
   switch (status) {
     case 'published': return 'bg-green-100 text-green-800';
     case 'draft': return 'bg-yellow-100 text-yellow-800';

@@ -20,9 +20,9 @@ function Navbar() {
             />
         </a>
         <nav className="hidden items-center gap-1 md:flex">
-          <a href="#home" className="rounded-md px-3 py-2 text-sm font-medium text-white/80 transition hover:text-white hover:outline hover:outline-1 hover:outline-white/10">Home</a>
-          <a href="#jobs" className="rounded-md px-3 py-2 text-sm font-medium text-white/80 transition hover:text-white hover:outline hover:outline-1 hover:outline-white/10">Job List</a>
-          <a href="#ai" className="rounded-md px-3 py-2 text-sm font-medium text-white/80 transition hover:text-white hover:outline hover:outline-1 hover:outline-white/10">AI Prompting</a>
+          <a onClick={() => navigate('/')} href="#home" className="rounded-md px-3 py-2 text-sm font-medium text-white/80 transition hover:text-white hover:outline hover:outline-1 hover:outline-white/10">Home</a>
+          <a onClick={() => navigate('/explore-jobs')} href="#jobs" className="rounded-md px-3 py-2 text-sm font-medium text-white/80 transition hover:text-white hover:outline hover:outline-1 hover:outline-white/10">Job List</a>
+          <a href="/onboarding" className="rounded-md px-3 py-2 text-sm font-medium text-white/80 transition hover:text-white hover:outline hover:outline-1 hover:outline-white/10">AI Prompting</a>
           <a href="#waitlist" className="rounded-md px-3 py-2 text-sm font-medium text-white/80 transition hover:text-white hover:outline hover:outline-1 hover:outline-white/10">Join Waitlist</a>
         </nav>
         <div className="flex items-center gap-3">

@@ -1,19 +1,20 @@
 import React from 'react';
 import { ReusableAlert } from "@/components/reusable/AlertDialog";
 import { CardJobList } from "@/components/reusable/CardJobList";
+import { JobMapping } from "@/types/job";
 import { useState } from "react";
-interface Job {
-  id: number;
-  title: string;
-  company: string;
-  description: string;
-  status: 'draft' | 'published' | 'closed';
-  applicants: number;
-  createdAt: string;
-}
+// interface Job {
+//   id: number;
+//   title: string;
+//   company: string;
+//   description: string;
+//   status: 'draft' | 'published' | 'closed';
+//   applicants: number;
+//   createdAt: string;
+// }
 
 interface JobCardProps {
-  job: Job;
+  job: JobMapping;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
   onView: (id: number) => void;
