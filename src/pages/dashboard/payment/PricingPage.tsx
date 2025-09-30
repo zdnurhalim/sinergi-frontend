@@ -5,12 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, Crown } from "lucide-react"; // Icon lucide-react
+import { PaymentGatewayService, PaymentGatewayPayload } from "@/services/PaymentGatewayService";
 
 const pricingPlans = [
   {
     id: "plus",
     name: "Plus",
-    price: 199_000,
+    price: 1000,
     description: "Cocok untuk individu atau tim kecil yang ingin mulai dengan Sinergi.ai",
     features: ["Akses fitur dasar", "Support via email", "5 project aktif"],
     icon: <Star className="w-8 h-8 text-yellow-500" />,
@@ -18,7 +19,7 @@ const pricingPlans = [
   {
     id: "pro",
     name: "Pro",
-    price: 499_000,
+    price: 1001,
     description: "Untuk tim profesional yang ingin produktivitas maksimal tanpa batasan apapun",
     features: ["Semua fitur Plus", "Support prioritas", "Unlimited project"],
     icon: <Crown className="w-8 h-8 text-purple-500" />,
@@ -27,11 +28,40 @@ const pricingPlans = [
 
 export const PricingPage: React.FC = () => {
   const navigate = useNavigate();
+  const paymentService = new PaymentGatewayService();
 
-  const handleSelectPlan = (planId: string) => {
-    console.log("Selected Plan:", planId);
+  const handleSelectPlan = async (planId: string, price: number, name: string) => {
+    // console.log("Selected Plan:", planId);
     // nanti bisa redirect ke checkout atau simpan di state global
-    navigate("checkout"); // contoh redirect
+    // navigate("checkout"); // contoh redirect
+    try {
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        console.log(user)
+        if (!user?.id) {
+          alert("Silakan login terlebih dahulu");
+          navigate("/login");
+          return;
+        }
+    
+        const payload: PaymentGatewayPayload = {
+          user_id: Number(user.id),
+          name: user.user?.name || user.name || "",
+          email: user.user?.email || user.email || "",
+          amount: Number(price),
+          mobile: user.phone || "",
+          redirectUrl: `${window.location.origin}/pricing/checkout`,
+          description: `Pembayaran plan ${planId}`,
+          expiredAt: new Date(Date.now() + 1000 * 60 * 60).toISOString(),
+        };
+
+        const response = await paymentService.createPayment(payload);
+        if (response?.data?.link) {
+            window.location.href = response.data.link; 
+        }
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("Gagal membuat pembayaran.");
+    };
   };
 
   return (
@@ -56,7 +86,7 @@ export const PricingPage: React.FC = () => {
               </ul>
               <Button 
                 className="mt-4 w-full"
-                onClick={() => handleSelectPlan(plan.id)}
+                onClick={() => handleSelectPlan(plan.id, plan.price)}
               >
                 Pilih {plan.name}
               </Button>
