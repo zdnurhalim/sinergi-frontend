@@ -1,72 +1,22 @@
 import React, { useState, useEffect} from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useNavigate } from "react-router-dom";
 import { Checkbox } from '@/components/ui/checkbox';
+import { DatePicker } from "@/components/reusable/Datepicker";
 import { useSelector } from "react-redux";
 import { useAuthToken } from "@/hooks/useAuthToken";
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
 import { ReusableAlert } from '@/components/reusable/AlertDialog';
 import { CompanyDetails, JobDetails, JobAdPreferences, MultiStepJobFormProps } from "@/types/job";
-import { useParams } from "react-router-dom";
 import { RootState } from "@/store/store";
 import { JobRequirementService } from "@/services/JobRequirementService"; 
-import { useNavigate } from "react-router-dom";
-import { DatePicker } from "@/components/reusable/Datepicker";
 
-export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }) => {
-  
+export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete, mode, initialData, jobId }) => {
   const token = useAuthToken(); 
   const jobRequirement = useSelector( (state: RootState) => state.jobRequirement.data);
-  const jobRequirementId = jobRequirement?.id || null;
+  const jobRequirementId: number | null = jobRequirement?.id? Number(jobRequirement.id): null;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  //console.log("data:", jobRequirement)
-  //console.log("Job Requirement ID:", jobRequirementId);
-
-  useEffect(() => {
-    const fetchJobData = async () => {
-      if (!jobRequirementId) return;
-
-      if (!token) return;
-
-      try {
-        const service = new JobRequirementService();
-        const res = await service.getJobAdById(jobRequirementId, token);
-
-        const jobData = res.data?.job_requirement;
-        if (!jobData) return;
-
-
-         setJobDetails({
-          position: jobData.position || '',
-          dailyTasks: jobData.daily_tasks || '',
-          salaryMin: jobData.salary_min || 0,
-          salaryMax: jobData.salary_max || 0,
-          ageMax: jobData.age_limitation ? parseInt(jobData.age_limitation) : 0,
-          gender: jobData.gender_preference || '',
-          vacancyDeadline: '', // bisa diisi jika ada field tanggal
-          specificDetails: Array.isArray(jobData.specific_details) 
-            ? jobData.specific_details.join(", ") 
-            : jobData.specific_details || ''
-        });
-
-        setCompanyDetails({
-          companyName: jobData.company_description || '',
-          industry: '', 
-          companySize: jobData.company_size || '', 
-          otherInformation: jobData.talent_description || ''
-        });
-
-      } catch (error) {
-        console.error("Failed to fetch job ad by id", error);
-      }
-    };
-
-    fetchJobData();
-  }, [jobRequirementId]);
-  
-
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [alertOpen, setAlertOpen] = useState(false);
@@ -95,6 +45,9 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
     includeGenderPreference: false
   });
 
+  //console.log("data:", jobRequirement)
+  //console.log("Job Requirement ID:", jobRequirementId);
+  
   // konversi gender string ke array untuk checkbox
   const genderArray = jobDetails.gender ? jobDetails.gender.split(",") : [];
 
@@ -165,35 +118,81 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
       }
   };
 
-  // const handleProceed = () => setAlertOpen(true);
-  const handleProceed = () => {
-    setAlertOpen(true);
-  };
-
+  const handleProceed = () => {setAlertOpen(true);};
   const updateJobDetails = (field: keyof JobDetails, value: string) => {
     setJobDetails(prev => ({ ...prev, [field]: value }));
   };
-
   const updateJobAdPreferences = (field: keyof JobAdPreferences, value: boolean) => {
     setJobAdPreferences(prev => ({ ...prev, [field]: value }));
   };
 
-  // // di dalam component
-  // const { jobId } = useParams<{ jobId: string }>();
+  // fetch data hanya kalau mode edit / onboarding
+  useEffect(() => {
+    const fetchJobData = async () => {
+      // Mode create manual tapi ada initialData dari parent
+      if (mode === "create" && initialData) {
+        // populate dari AI generate
+        setCompanyDetails({
+          companyName: initialData.company?.companyName || '',
+          industry: '',
+          companySize: '',
+          otherInformation: initialData.job?.dailyTasks || ''
+        });
 
-  // // bisa pakai jobId untuk fetch data awal
-  // useEffect(() => {
-  //   if (jobId) {
-  //     // fetch job data by id
-  //     // misal:
-  //     // fetchJobById(jobId).then(data => {
-  //     //   setCompanyDetails(data.company);
-  //     //   setJobDetails(data.job);
-  //     //   setJobAdPreferences(data.preferences);
-  //     // });
-  //   }
-  // }, [jobId]);
+        setJobDetails({
+          position: initialData.job?.position || '',
+          dailyTasks: initialData.job?.dailyTasks || '',
+          salaryMin: 0,
+          salaryMax: 0,
+          ageMax: 0,
+          gender: '',
+          vacancyDeadline: '',
+          specificDetails: ''
+        });
 
+        return;
+      }
+
+      // Mode create manual tanpa initialData => kosong
+      if (mode === "create") return;
+
+      // Mode onboarding/edit
+      if (!jobRequirementId || !token) return;
+
+      try {
+        const service = new JobRequirementService();
+        const res = await service.getJobAdById(jobRequirementId, token);
+        const jobData = res.data?.job_requirement;
+        if (!jobData) return;
+
+        setJobDetails({
+          position: jobData.position || '',
+          dailyTasks: jobData.daily_tasks || '',
+          salaryMin: jobData.salary_min || 0,
+          salaryMax: jobData.salary_max || 0,
+          ageMax: jobData.age_limitation ? parseInt(jobData.age_limitation) : 0,
+          gender: jobData.gender_preference || '',
+          vacancyDeadline: jobData.vacancy_deadline || '',
+          specificDetails: Array.isArray(jobData.specific_details) 
+            ? jobData.specific_details.join(", ") 
+            : jobData.specific_details || ''
+        });
+
+        setCompanyDetails({
+          companyName: jobData.company_description || '',
+          industry: jobData.industry || '',
+          companySize: jobData.company_size || '', 
+          otherInformation: jobData.talent_description || ''
+        });
+
+      } catch (error) {
+        console.error("Failed to fetch job ad by id", error);
+      }
+    };
+
+    fetchJobData();
+  },[jobRequirementId, mode, token, initialData]);
+  
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 max-w-5xl mx-auto">
       {/* Progress Bar */}

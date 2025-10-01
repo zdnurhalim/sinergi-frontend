@@ -21,7 +21,10 @@ const menu = [
       },
       {
         name: "Create Job",
-        to: "/dashboard/create-job",
+        to: { 
+          pathname: "/dashboard/create-job", 
+          state: { mode: "create" } 
+        },
         icon: PlusCircle,
       },
     ],
@@ -103,9 +106,10 @@ export default function Sidebar() {
                 {openMenus[name] && (
                   <ul className="ml-8 mt-1 space-y-2">
                     {children.map(({ name, to, icon: SubIcon }) => (
-                      <li key={to}>
+                      <li key={typeof to === "string" ? to : to.pathname}>
                         <NavLink
-                          to={to}
+                          to={typeof to === "string" ? to : to.pathname}
+                          state={typeof to === "object" ? to.state : undefined}
                           className={({ isActive }) =>
                             `flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
                               isActive
@@ -117,6 +121,7 @@ export default function Sidebar() {
                           <SubIcon className="w-4 h-4" />
                           <span>{name}</span>
                         </NavLink>
+
                       </li>
                     ))}
                   </ul>

@@ -42,4 +42,7 @@ export interface MultiStepJobFormProps {
     job: JobDetails;
     preferences: JobAdPreferences;
   }) => void;
+  mode: "create" | "edit" | "onboarding"; // <--- tambahan
+  initialData?: any;
+  jobId?: string | null; // kalau edit, id-nya dikirim
 }

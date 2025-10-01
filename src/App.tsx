@@ -66,6 +66,7 @@ const App = () => (
                     onComplete={(data) => {
                       console.log("Job form completed:", data);
                     }}
+                    mode="edit"
                   />
                 }
               />

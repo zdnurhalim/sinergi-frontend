@@ -1,6 +1,6 @@
 "use client";
-
-import React, { useState } from "react";
+import React, { useState, useEffect  } from "react";
+import { useLocation } from "react-router-dom";
 import { MultiStepJobForm } from "@/components/dashboard/jobCreation/MultiStepJobForm";
 import JobVersions from "@/components/dashboard/jobCreation/JobVersions";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { useAuthToken } from "@/hooks/useAuthToken";
 import { JobRequirementService } from "@/services/JobRequirementService";
-import { setJobRequirement, setError, setLoading } from '@/store/jobRequirementSlice';
+import { setJobRequirement, setError, setLoading } from '@/store/JobRequirementSlice';
 import { useDispatch } from 'react-redux';
 
 /* -------------------- Stepper Component -------------------- */
@@ -70,12 +70,9 @@ function Stepper({ step }: { step: string }) {
   );
 }
 
-
 /* -------------------- Parent Page -------------------- */
 export default function CreateJobPage() {
-  const jobRequirement = useSelector(
-    (state: RootState) => state.jobRequirement.data
-  );
+  const jobRequirement = useSelector((state: RootState) => state.jobRequirement.data);
   const dispatch = useDispatch();
   const [step, setStep] = useState<"choice" | "aiPrompt" | "jobVersions" | "multiStep">("choice");
   const [jobFormData, setJobFormData] = useState<unknown>(null);
@@ -84,22 +81,44 @@ export default function CreateJobPage() {
   const jobDescription = jobRequirement?.talent_description || "";
   const jobRequirementId = jobRequirement?.id || null;
   const companyDescription = jobRequirement?.company_description || "";
-
-  const [aiFormData, setAiFormData] = useState<{ jobDescription?: string; companyDescription?: string; }>({
-    jobDescription,
-    companyDescription: jobRequirement?.company_description || "",
-  });
+  const location = useLocation();
+  const initialMode = location.state?.mode || "onboarding"; // default create
+  const [formMode, setFormMode] = useState<"create" | "onboarding">(initialMode);
   const [isProcessing, setIsProcessing] = useState(false);
   const handleComplete = (data: unknown) => {
     setJobFormData(data);
   };
-   // Fungsi untuk Generate Versions dengan loader
+  // -------------------- kosongkan AI prompt jika mode create --------------------
+  const [aiFormData, setAiFormData] = useState<{ jobDescription?: string; companyDescription?: string }>({
+    jobDescription: "",
+    companyDescription: "",
+  });
+
+  useEffect(() => {
+    if (formMode === "create") {
+      setAiFormData({ jobDescription: "", companyDescription: "" }); // <-- kosongkan
+    } else {
+      setAiFormData({
+        jobDescription: jobRequirement?.talent_description || "",
+        companyDescription: jobRequirement?.company_description || "",
+      });
+    }
+  }, [formMode, jobRequirement]);
+
+   // -------------------- Fungsi untuk Generate Versions dengan loader ---------------------------
   const handleGenerateVersions = async () => {
     setIsProcessing(true); // loader muncul
 
     try {
       const service = new JobRequirementService();
-      const result = await service.generateJobAd({ job_requirement_id: jobRequirementId, company_description: companyDescription,  talent_description: jobDescription },token);
+      const result = await service.generateJobAd(
+        {
+          job_requirement_id: jobRequirementId,
+          company_description: aiFormData.companyDescription,
+          talent_description: aiFormData.jobDescription,
+        },
+        token
+      );
       dispatch(setJobRequirement(result.data));
       dispatch(setError(null));
       // Update state dengan hasil API
@@ -119,20 +138,6 @@ export default function CreateJobPage() {
     } finally {
       setIsProcessing(false); // loader hilang
     }
-
-    // Simulasi AI processing (3 detik)
-    // setTimeout(() => {
-    //   setJobFormData({
-    //     company: { companyName: "Your Company" },
-    //     job: {
-    //       position: "Generated Position",
-    //       dailyTasks: aiFormData.jobDescription || "",
-    //     },
-    //   });
-
-    //   setIsProcessing(false);  // selesai, loader hilang
-    //   setStep("jobVersions");  // baru ganti step
-    // }, 1500);
 };
 
   return (
@@ -262,7 +267,7 @@ export default function CreateJobPage() {
       {/* -------------------- Step 3: MultiStep Form -------------------- */}
       {step === "multiStep" && (
         <div className="max-w-6xl mx-auto">
-          <MultiStepJobForm onComplete={handleComplete} />
+          <MultiStepJobForm mode={formMode} onComplete={handleComplete} initialData={jobFormData} />
         </div>
       )}
     </div>
