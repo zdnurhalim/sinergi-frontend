@@ -70,7 +70,7 @@ function AIPrompting() {
             </div>
             
             <div className="md:col-span-1">
-              <button className=" inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f6c178] to-[#aacde5] px-4 py-3 text-sm font-semibold text-black shadow-sm transition hover:brightness-110">
+              <button className=" inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f6c178] to-[#aacde5] px-4 py-3 text-sm font-semibold text-black shadow-sm hover:brightness-110 hover:shadow-[0_0_25px_rgba(246,193,120,0.5)] transition-all duration-300">
                 <Wand2 size={24} /> Generate Job Requirement
               </button>
               <button 

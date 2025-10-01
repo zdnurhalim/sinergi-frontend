@@ -3,6 +3,7 @@ import FormSection from './FormSection';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Terminal } from 'lucide-react';
+import { LoadingSpinner } from '@/components/reusable/LoadingSpinner';
 
 interface GlassmorphicCardProps {
   onNext?: (companyInfo: string, talentInfo: string) => void;
@@ -12,10 +13,18 @@ interface GlassmorphicCardProps {
 const GlassmorphicCard: React.FC<GlassmorphicCardProps> = ({ onNext, errors }) => {
   const [companyInfo, setCompanyInfo] = useState('');
   const [talentInfo, setTalentInfo] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleNext = () => {
-    if (onNext) onNext(companyInfo, talentInfo);
+ const handleNext = async () => {
+    if (!onNext) return;
+    try {
+      setLoading(true);
+      // kalau onNext bisa async, tunggu dulu
+      await Promise.resolve(onNext(companyInfo, talentInfo));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -25,9 +34,7 @@ const GlassmorphicCard: React.FC<GlassmorphicCardProps> = ({ onNext, errors }) =
       <h1 className="text-white text-lg font-semibold tracking-tight mb-4">
         Let's try our Sinergi.AI recruiter module
       </h1>
-
       <hr className="border-white/20 mb-6" />
-
       <form className="w-full" onSubmit={(e) => e.preventDefault()}>
         <div className="space-y-6">
           <FormSection
@@ -68,9 +75,20 @@ const GlassmorphicCard: React.FC<GlassmorphicCardProps> = ({ onNext, errors }) =
           <button
             type="button"
             onClick={handleNext}
-            className="flex-1 flex items-center justify-center gap-2 px-6 py-2 rounded-xl bg-gradient-to-r from-[#f6c178] to-[#aacde5] text-black font-semibold shadow-md hover:brightness-105 transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#aacde5]/50 focus:ring-offset-2"
+            className={`flex-1 flex items-center justify-center gap-2 px-6 py-2 rounded-xl font-semibold shadow-md transition-all duration-300
+                      bg-gradient-to-r from-[#f6c178] to-[#aacde5] text-black 
+                      hover:brightness-110 hover:shadow-[0_0_25px_rgba(246,193,120,0.4)]
+                      focus:outline-none focus:ring-2 focus:ring-[#aacde5]/50 focus:ring-offset-2
+                      ${loading ? "opacity-70 cursor-not-allowed hover:brightness-100" : ""}`}
           >
-            <Terminal className="w-4 h-4" /> Generate Prompt
+            {loading ? (
+              <LoadingSpinner label="Processing..." />
+            ) : (
+              <>
+                <Terminal className="w-4 h-4" />
+                Generate Prompt
+              </>
+            )}
           </button>
         </div>
 

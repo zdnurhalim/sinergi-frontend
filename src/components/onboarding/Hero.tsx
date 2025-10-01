@@ -31,7 +31,7 @@ function Hero() {
                 Attract better candidates by starting smarter,Sinergi AI help you define your ideal role and requirements before you even write the ad
               </p>
               <div className="flex flex-wrap items-center gap-3 mx-auto justify-center">
-                <a href="#ai" className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#f6c178] to-[#aacde5] px-5 py-3 text-sm font-semibold text-black shadow-sm transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#aacde5]/40">
+                <a href="#ai" className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#f6c178] to-[#aacde5] px-5 py-3 text-sm font-semibold text-black shadow-sm hover:brightness-110 hover:shadow-[0_0_25px_rgba(246,193,120,0.4)] transition-all duration-300focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#aacde5]/40">
                   <Sparkles size={24} />
                   Try Sinergy.AI Now
                 </a>

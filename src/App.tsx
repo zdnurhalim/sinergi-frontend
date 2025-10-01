@@ -26,6 +26,7 @@ import LoginPage from "./pages/landing-page/loginPage";
 import ExploreJobs from "./pages/landing-page/exploreJobs";
 import LandingPage from "./pages/landing-page/LandingPages";
 import ExploreJobDetail from "./pages/landing-page/exploreJobsDetail";
+import RegisterPage from "./pages/landing-page/RegisterPage";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/explore-jobs/job-detail/:id" element={<ExploreJobDetail />} />
             </Route>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
             <Route path="/onboarding" element={<Onboarding />} />
 
             {/* Nested Dashboard Routes */}

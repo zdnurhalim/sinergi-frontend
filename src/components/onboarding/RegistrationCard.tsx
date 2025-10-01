@@ -1,215 +1,293 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { LoadingSpinner } from "../reusable/LoadingSpinner";
 
 interface RegistrationCardProps {
   onBack?: () => void;
-  onRegister?: (data: { email: string; password: string; fullName: string; company: string }) => void;
+  onRegister?: (data: {
+    email: string;
+    password: string;
+    fullName: string;
+    company: string;
+  }) => void;
   onLogin?: () => void;
   errors?: { [key: string]: string[] };
 }
 
-const RegistrationCard: React.FC<RegistrationCardProps> = ({ onBack, onRegister, onLogin, errors  }) => {
+const RegistrationCard: React.FC<RegistrationCardProps> = ({
+  onBack,
+  onRegister,
+  onLogin,
+  errors: backendErrors = {},
+}) => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    company: '',
-    password: '',
-    password_confirmation: ''
+    name: "",
+    email: "",
+    company: "",
+    password: "",
+    password_confirmation: "",
   });
   const [isLogin, setIsLogin] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: "" })); // hapus error field saat diketik
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.email) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
+      newErrors.email = "Enter a valid email address";
+
+    if (!formData.password) newErrors.password = "Password is required";
+    else if (formData.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
+
+    if (!isLogin) {
+      if (!formData.name) newErrors.name = "Full name is required";
+      if (!formData.company) newErrors.company = "Company name is required";
+      if (!formData.password_confirmation)
+        newErrors.password_confirmation = "Please confirm your password";
+      else if (formData.password_confirmation !== formData.password)
+        newErrors.password_confirmation = "Passwords do not match";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isLogin) {
-      if (onLogin) {
-        onLogin();
-      }
-    } else {
-      if (onRegister) {
-        onRegister({
+
+    if (!validateForm()) return;
+
+    setLoading(true);
+    try {
+      if (isLogin) {
+        onLogin?.();
+      } else {
+        onRegister?.({
           email: formData.email,
           password: formData.password,
           fullName: formData.name,
-          company: formData.company
+          company: formData.company,
         });
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <main className="relative shadow-[2px_2px_24px_12px_rgba(255,255,255,0.25)_inset,1px_24px_40px_0_rgba(0,0,0,0.25)] backdrop-blur-[30px] bg-[linear-gradient(0deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.05)_100%),linear-gradient(150deg,rgba(255,255,255,0.05)_4.38%,rgba(203,203,203,0.05)_35.03%,rgba(255,255,255,0.05)_63.26%,rgba(203,203,203,0.05)_96.5%)] self-center w-[726px] max-w-full font-normal mt-[113px] p-6 rounded-3xl border-[0.6px] border-solid border-[rgba(255,255,255,0.50)] max-md:mt-10 max-md:px-5">
-      <div className="flex items-center gap-4 mb-4">
-        <button
-          onClick={onBack}
-          className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-        >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12.5 15L7.5 10L12.5 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
-        <h1 className="text-white text-base leading-loose tracking-[0.24px] max-md:max-w-full">
-          {isLogin ? 'Welcome back to Sinergi.AI' : 'Create your Sinergi.AI account'}
-        </h1>
-      </div>
-      
-      <hr className="border min-h-0 w-full mt-4 border-[rgba(255,255,255,0.5)] border-solid max-md:max-w-full" />
-      
-      <form className="w-full mt-4 max-md:max-w-full" onSubmit={handleSubmit}>
-        <div className="w-full pb-6 space-y-4 max-md:max-w-full">
-          {!isLogin && (
-            <>
-              <div className="w-full">
-                <label className="flex w-full gap-0.5 text-sm text-white tracking-[0.28px] leading-[22px] px-2 py-0.5 max-md:max-w-full">
-                  <span className="flex-1 shrink basis-[0%] max-md:max-w-full">
+    <div className="w-full relative z-10">
+      <Card className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl shadow-lg p-8">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl text-white">
+            {isLogin ? "Welcome Back" : "Create Account"}
+          </CardTitle>
+          <CardDescription className="text-white/70">
+            {isLogin
+              ? "Sign in to your account to continue."
+              : "Register to get started with Sinergi.AI"}
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {!isLogin && (
+              <>
+                <div>
+                  <Label htmlFor="name" className="text-white/90">
                     Full Name
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Enter your full name"
-                  className="w-full text-xs text-[#F3F0F2] tracking-[0.24px] leading-loose mt-2 px-6 py-3 rounded-lg border border-[#A49098] bg-transparent focus:outline-none focus:border-white transition-colors duration-200 placeholder:text-[#F3F0F2] max-md:px-5"
-                  required
-                />
+                  </Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) =>
+                      handleInputChange("name", e.target.value)
+                    }
+                    placeholder="Enter your full name"
+                    className="bg-white/5 text-white placeholder:text-white/50 border-white/20"
+                  />
+                  {(errors.name || backendErrors?.name) && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.name || backendErrors.name?.[0]}
+                    </p>
+                  )}
+                </div>
 
-                {errors?.name && (
-                  <div className="text-red-500 text-sm mt-1 whitespace-normal break-words max-w-md">
-                    {errors.name[0]}
-                  </div>
-                )}
-                
-              </div>
-
-              <div className="w-full">
-                <label className="flex w-full gap-0.5 text-sm text-white tracking-[0.28px] leading-[22px] px-2 py-0.5 max-md:max-w-full">
-                  <span className="flex-1 shrink basis-[0%] max-md:max-w-full">
+                <div>
+                  <Label htmlFor="company" className="text-white/90">
                     Company Name
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.company}
-                  onChange={(e) => handleInputChange('company', e.target.value)}
-                  placeholder="Enter your company name"
-                  className="w-full text-xs text-[#F3F0F2] tracking-[0.24px] leading-loose mt-2 px-6 py-3 rounded-lg border border-[#A49098] bg-transparent focus:outline-none focus:border-white transition-colors duration-200 placeholder:text-[#F3F0F2] max-md:px-5"
-                  required
-                />
-                {errors?.company && (
-                  <div className="text-red-500 text-sm mt-1 whitespace-normal break-words max-w-md">
-                    {errors.company[0]}
-                  </div>
-                )}
-              </div>
-            </>
-          )}
+                  </Label>
+                  <Input
+                    id="company"
+                    value={formData.company}
+                    onChange={(e) =>
+                      handleInputChange("company", e.target.value)
+                    }
+                    placeholder="Enter your company name"
+                    className="bg-white/5 text-white placeholder:text-white/50 border-white/20"
+                  />
+                  {(errors.company || backendErrors?.company) && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.company || backendErrors.company?.[0]}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
 
-          <div className="w-full">
-            <label className="flex w-full gap-0.5 text-sm text-white tracking-[0.28px] leading-[22px] px-2 py-0.5 max-md:max-w-full">
-              <span className="flex-1 shrink basis-[0%] max-md:max-w-full">
+            <div>
+              <Label htmlFor="email" className="text-white/90">
                 Email Address
-              </span>
-            </label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              placeholder="Enter your email address"
-              className="w-full text-xs text-[#F3F0F2] tracking-[0.24px] leading-loose mt-2 px-6 py-3 rounded-lg border border-[#A49098] bg-transparent focus:outline-none focus:border-white transition-colors duration-200 placeholder:text-[#F3F0F2] max-md:px-5"
-              required
-            />
-            {errors?.email && (
-              <div className="text-red-500 text-sm mt-1 whitespace-normal break-words max-w-md">
-                {errors.email[0]}
-              </div>
-            )}
-          </div>
-
-          <div className="w-full">
-            <label className="flex w-full gap-0.5 text-sm text-white tracking-[0.28px] leading-[22px] px-2 py-0.5 max-md:max-w-full">
-              <span className="flex-1 shrink basis-[0%] max-md:max-w-full">
-                Password
-              </span>
-            </label>
-            <input
-              type="password"
-              value={formData.password}
-              onChange={(e) => handleInputChange('password', e.target.value)}
-              placeholder="Enter your password"
-              className="w-full text-xs text-[#F3F0F2] tracking-[0.24px] leading-loose mt-2 px-6 py-3 rounded-lg border border-[#A49098] bg-transparent focus:outline-none focus:border-white transition-colors duration-200 placeholder:text-[#F3F0F2] max-md:px-5"
-              required
-            />
-            {errors?.password && (
-                <div className="text-red-500 text-sm mt-1 whitespace-normal break-words max-w-md">
-                  {errors.password[0]}
-                </div>
-            )}
-          </div>
-
-          {!isLogin && (
-            <div className="w-full">
-              <label className="flex w-full gap-0.5 text-sm text-white tracking-[0.28px] leading-[22px] px-2 py-0.5 max-md:max-w-full">
-                <span className="flex-1 shrink basis-[0%] max-md:max-w-full">
-                  Confirm Password
-                </span>
-              </label>
-              <input
-                type="password"
-                value={formData.password_confirmation}
-                onChange={(e) => handleInputChange('password_confirmation', e.target.value)}
-                placeholder="Confirm your password"
-                className="w-full text-xs text-[#F3F0F2] tracking-[0.24px] leading-loose mt-2 px-6 py-3 rounded-lg border border-[#A49098] bg-transparent focus:outline-none focus:border-white transition-colors duration-200 placeholder:text-[#F3F0F2] max-md:px-5"
-                required
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                placeholder="name@company.com"
+                className="bg-white/5 text-white placeholder:text-white/50 border-white/20"
               />
-              {errors?.password_confirmation && (
-                <div className="text-red-500 text-sm mt-1 whitespace-normal break-words max-w-md">
-                  {errors.password_confirmation[0]}
-                </div>
+              {(errors.email || backendErrors?.email) && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.email || backendErrors.email?.[0]}
+                </p>
               )}
             </div>
-          )}
-        </div>
-        
-        <div className="flex w-full flex-col gap-4 mt-6 max-md:max-w-full">
-          <button
-            type="submit"
-            className="flex justify-center items-center gap-2 text-[13px] text-[#66575C] font-semibold whitespace-nowrap tracking-[0.52px] leading-none px-6 py-3 rounded-lg bg-white hover:bg-gray-100 transition-colors duration-200 max-md:px-5"
-          >
-            <span className="self-stretch my-auto">
-              {isLogin ? 'Sign In' : 'Create Account'}
-            </span>
-            <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8.91 19.92L15.43 13.4C16.2 12.63 16.2 11.37 15.43 10.6L8.91 4.08" stroke="#66575C" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
 
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-white text-sm underline hover:text-gray-300 transition-colors"
+            <div>
+              <Label htmlFor="password" className="text-white/90">
+                Password
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={(e) =>
+                  handleInputChange("password", e.target.value)
+                }
+                placeholder="••••••••"
+                className="bg-white/5 text-white placeholder:text-white/50 border-white/20"
+              />
+              {(errors.password || backendErrors?.password) && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.password || backendErrors.password?.[0]}
+                </p>
+              )}
+            </div>
+
+            {!isLogin && (
+              <div>
+                <Label
+                  htmlFor="password_confirmation"
+                  className="text-white/90"
+                >
+                  Confirm Password
+                </Label>
+                <Input
+                  id="password_confirmation"
+                  type="password"
+                  value={formData.password_confirmation}
+                  onChange={(e) =>
+                    handleInputChange("password_confirmation", e.target.value)
+                  }
+                  placeholder="Confirm your password"
+                  className="bg-white/5 text-white placeholder:text-white/50 border-white/20"
+                />
+                {(errors.password_confirmation ||
+                  backendErrors?.password_confirmation) && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.password_confirmation ||
+                      backendErrors.password_confirmation?.[0]}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className={`w-full bg-gradient-to-r from-[#f6c178] to-[#aacde5] text-black 
+                hover:brightness-110 transition-all duration-300 ${
+                  loading ? "opacity-70 cursor-not-allowed" : ""
+                }`}
             >
-              {isLogin 
-                ? "Don't have an account? Sign up" 
-                : 'Already have an account? Sign in'
-              }
-            </button>
-          </div>
+              {loading ? (
+                <>
+                  <LoadingSpinner className="h-5 w-5 text-black" />
+                  <span>{isLogin ? "Signing in..." : "Creating account..."}</span>
+                </>
+              ) : isLogin ? (
+                "Sign In"
+              ) : (
+                "Create Account"
+              )}
+            </Button>
 
-          {!isLogin && (
-            <p className="text-[#F3F0F2] text-xs text-center opacity-70 px-4">
-              By creating an account, you agree to our Terms of Service and Privacy Policy
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onBack}
+              className="w-full flex items-center justify-center gap-2 border-white/30 text-white bg-white/5"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to Home
+            </Button>
+
+            <p className="text-sm text-center text-white/70">
+              {isLogin ? (
+                <>
+                  Don’t have an account?{" "}
+                  <a
+                    onClick={() => setIsLogin(false)}
+                    className="underline cursor-pointer"
+                  >
+                    Sign Up
+                  </a>
+                </>
+              ) : (
+                <>
+                  Already have an account?{" "}
+                  <a
+                    onClick={() => navigate("/login")}
+                    className="underline cursor-pointer"
+                  >
+                    Sign In
+                  </a>
+                </>
+              )}
             </p>
-          )}
+          </form>
+        </CardContent>
+      </Card>
+
+      {!isLogin && (
+        <div className="mt-6 text-center text-sm text-white/50 drop-shadow">
+          <p>
+            By creating an account, you agree to our Terms of Service and Privacy
+            Policy.
+          </p>
         </div>
-      </form>
-    </main>
+      )}
+    </div>
   );
 };
 
