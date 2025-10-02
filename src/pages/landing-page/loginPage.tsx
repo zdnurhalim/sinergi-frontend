@@ -45,8 +45,18 @@ export default function LoginPage() {
 
     try {
       const response = await authService.login({ email: data.email, password: data.password });
-      dispatch(setAuth({ data: response.data, token: response.token }));
+     
       localStorage.setItem("authToken", response.token);
+      const userInfo = {
+        id: response.data.id,
+        name: response.data.user?.name,
+        email: response.data.user?.email,
+        phone: response.data.phone,
+        company: response.data.company?.company_name,
+      };
+      localStorage.setItem("user", JSON.stringify(userInfo));
+
+      dispatch(setAuth({ data: response.data, token: response.token }));
       window.location.href = "/dashboard";
     } catch (err: any) {
       dispatch(setAuthError(err.message || "Login failed"));
