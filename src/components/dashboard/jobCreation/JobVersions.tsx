@@ -21,13 +21,22 @@ export default function JobVersions({  selectedVersion, onChooseVersion, onBack 
   const { data, loading, error } = useSelector((state: RootState) => state.jobRequirement);
   const service = new JobRequirementService();
   const token = useAuthToken(); 
-  const versions = data.generate_content.flatMap(gc => {
-    const pr = gc.parsed_response;
-    return [
-      { key: "version_1" as const, data: pr.version_1.job_requirement, label: "A" },
-      { key: "version_2" as const, data: pr.version_2.job_requirement, label: "B" },
-    ];
-  });
+  const versions = (data?.generate_content ?? []).flatMap((gc: any) => {
+  const pr = gc.parsed_response ?? {};
+
+  const v1 = Array.isArray(pr.version_1)
+    ? (pr.version_1[0]?.job_requirement ?? pr.version_1[0])
+    : (pr.version_1?.job_requirement ?? pr.version_1);
+
+  const v2 = Array.isArray(pr.version_2)
+    ? (pr.version_2[0]?.job_requirement ?? pr.version_2[0])
+    : (pr.version_2?.job_requirement ?? pr.version_2);
+
+  return [
+    ...(v1 ? [{ key: "version_1" as const, data: v1, label: "A" }] : []),
+    ...(v2 ? [{ key: "version_2" as const, data: v2, label: "B" }] : []),
+  ];
+});
 
 
   const handleChooseVersion = async (version: "version_1" | "version_2" | "C") => {
