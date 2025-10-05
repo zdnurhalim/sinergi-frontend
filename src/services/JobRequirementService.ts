@@ -103,4 +103,16 @@ export class JobRequirementService {
       return this.handleResponse(res);
     }
 
+    async createJobAd(payload: Partial<JobRequirementResponse>, token: string) {
+      const res = await fetch(`${this.baseUrl}/job-ads/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      return this.handleResponse(res);
+    }
+
 }
