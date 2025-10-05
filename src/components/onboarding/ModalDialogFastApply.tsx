@@ -6,46 +6,108 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogClose,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/use-toast";
+import ApplicationService from "@/services/ApplicationService";
+import { JobRequirementService } from "@/services/JobRequirementService";
 
-export default function FastApplyModal() {
-  const [fullName, setFullName] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
-  const [domicile, setDomicile] = useState("");
-  const [education, setEducation] = useState("");
-  const [major, setMajor] = useState("");
+interface FastApplyModalProps {
+  jobAdsId: number;
+  recruiterId: number;
+}
+
+export default function FastApplyModal({ jobAdsId, recruiterId }: FastApplyModalProps) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const [formData, setFormData] = useState({
+    full_name: "",
+    whatsapp: "",
+    domicile: "",
+    last_education: "",
+    major: "",
+    email: "",
+  });
+
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [portfolioFile, setPortfolioFile] = useState<File | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // logic submit form
-    console.log({
-      fullName,
-      whatsapp,
-      domicile,
-      education,
-      major,
-      cvFile,
-      portfolioFile,
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
     });
-    alert("Application submitted!");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+
+      const payload = new FormData();
+      payload.append("job_ads_id", String(jobAdsId));
+      payload.append("recruiter_id", String(recruiterId));
+      payload.append("application_status", "1");
+      
+      // Hardcode
+      payload.append("job_ads_id", "3");
+      payload.append("recruiter_id", "9");
+
+      Object.entries(formData).forEach(([key, value]) => {
+        payload.append(key, value);
+      });
+
+      if (cvFile) payload.append("cv", cvFile);
+      if (portfolioFile) payload.append("portfolio_path", portfolioFile);
+
+      await ApplicationService.createApplication(payload);
+
+      toast({
+        title: "Lamaran Berhasil Dikirim 🎉",
+        description: "Terima kasih! Lamaran cepat kamu telah diterima.",
+      });
+
+      setOpen(false);
+      setFormData({
+        full_name: "",
+        whatsapp: "",
+        domicile: "",
+        last_education: "",
+        major: "",
+        email: "",
+      });
+      setCvFile(null);
+      setPortfolioFile(null);
+    } catch (error: any) {
+      console.error("Error:", error);
+      toast({
+        title: "Gagal Mengirim Lamaran 😞",
+        description:
+          error?.response?.data?.message ||
+          "Terjadi kesalahan saat mengirim lamaran.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Dialog>
+    
+    <Dialog open={open} onOpenChange={setOpen}>
+      {/* 🔸 Tombol Trigger Modal */}
       <DialogTrigger asChild>
-        <Button
-        className="w-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white font-semibold shadow-lg"
-        >
-        Fast Apply Now 🚀
+        <Button className="w-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white font-semibold shadow-lg">
+          Fast Apply Now 🚀
         </Button>
       </DialogTrigger>
 
+      {/* 🔸 Konten Modal */}
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
@@ -55,12 +117,13 @@ export default function FastApplyModal() {
 
         <form className="grid gap-4 py-2" onSubmit={handleSubmit}>
           <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="fullName">Full Name</Label>
+            <Label htmlFor="full_name">Full Name</Label>
             <Input
-              id="fullName"
+              id="full_name"
+              name="full_name"
               placeholder="Enter your full name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              value={formData.full_name}
+              onChange={handleChange}
               required
             />
           </div>
@@ -69,9 +132,10 @@ export default function FastApplyModal() {
             <Label htmlFor="whatsapp">WhatsApp</Label>
             <Input
               id="whatsapp"
+              name="whatsapp"
               placeholder="Enter your WhatsApp number"
-              value={whatsapp}
-              onChange={(e) => setWhatsapp(e.target.value)}
+              value={formData.whatsapp}
+              onChange={handleChange}
               required
             />
           </div>
@@ -80,20 +144,22 @@ export default function FastApplyModal() {
             <Label htmlFor="domicile">Domicile</Label>
             <Input
               id="domicile"
+              name="domicile"
               placeholder="Enter your city or region"
-              value={domicile}
-              onChange={(e) => setDomicile(e.target.value)}
+              value={formData.domicile}
+              onChange={handleChange}
               required
             />
           </div>
 
           <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="education">Last Education</Label>
+            <Label htmlFor="last_education">Last Education</Label>
             <Input
-              id="education"
+              id="last_education"
+              name="last_education"
               placeholder="Enter your highest education"
-              value={education}
-              onChange={(e) => setEducation(e.target.value)}
+              value={formData.last_education}
+              onChange={handleChange}
               required
             />
           </div>
@@ -102,16 +168,29 @@ export default function FastApplyModal() {
             <Label htmlFor="major">Major</Label>
             <Input
               id="major"
+              name="major"
               placeholder="Enter your major"
-              value={major}
-              onChange={(e) => setMajor(e.target.value)}
+              value={formData.major}
+              onChange={handleChange}
             />
           </div>
 
           <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="cv">Upload CV</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
-              id="cv"
+              id="email"
+              name="email"
+              type="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="grid w-full items-center gap-1.5">
+            <Label htmlFor="cv_path">Upload CV</Label>
+            <Input
+              id="cv_path"
               type="file"
               accept=".pdf,.doc,.docx"
               onChange={(e) => setCvFile(e.target.files?.[0] || null)}
@@ -120,21 +199,23 @@ export default function FastApplyModal() {
           </div>
 
           <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="portfolio">Upload Portfolio</Label>
+            <Label htmlFor="portfolio_path">Upload Portfolio (Optional)</Label>
             <Input
-              id="portfolio"
+              id="portfolio_path"
               type="file"
               accept=".pdf,.doc,.docx,.zip,.rar"
               onChange={(e) => setPortfolioFile(e.target.files?.[0] || null)}
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-4">
+          <DialogFooter className="flex justify-end gap-2 pt-4">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Submit Application</Button>
-          </div>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Sending..." : "Submit Application"}
+            </Button>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

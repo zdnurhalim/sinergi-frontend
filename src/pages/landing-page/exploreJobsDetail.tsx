@@ -12,7 +12,7 @@ const ExploreJobDetail: React.FC = () => {
 
   const [job, setJob] = useState<JobRequirement | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
-
+  
   useEffect(() => {
     const foundJob = jobListSample.find((j) => j.id === Number(id));
     if (foundJob) setJob(foundJob);
