@@ -133,7 +133,7 @@ export default function CreateJobPage() {
     //   setIsProcessing(false);  // selesai, loader hilang
     //   setStep("jobVersions");  // baru ganti step
     // }, 1500);
-};
+  };
 
   return (
     <div className="max-w-6xl mx-auto p-6">

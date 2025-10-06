@@ -27,6 +27,9 @@ export interface JobDetails {
   gender: string; // simpan sebagai string (comma-separated)
   vacancyDeadline: string; // simpan sebagai ISO date string
   specificDetails: string;
+  workArrangement?: string;
+  minimumExperience?: number
+  benefits?: string[]; 
 }
 
 export interface JobAdPreferences {

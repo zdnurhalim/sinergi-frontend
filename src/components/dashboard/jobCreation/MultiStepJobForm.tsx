@@ -21,8 +21,11 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  //console.log("data:", jobRequirement)
-  //console.log("Job Requirement ID:", jobRequirementId);
+  const WORK_ARRANGEMENT_OPTIONS = [
+    { value: 'Remote', label: 'Remote' },
+    { value: 'On-site', label: 'On-site' },
+    { value: 'Hybrid', label: 'Hybrid' },
+  ];
 
   useEffect(() => {
     const fetchJobData = async () => {
@@ -45,10 +48,17 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
           salaryMax: jobData.salary_max || 0,
           ageMax: jobData.age_limitation ? parseInt(jobData.age_limitation) : 0,
           gender: jobData.gender_preference || '',
-          vacancyDeadline: '', // bisa diisi jika ada field tanggal
+          
+          vacancyDeadline: jobData.vacancy_deadline
+            ? new Date(jobData.vacancy_deadline).toISOString().split('T')[0]
+            : '',
+
           specificDetails: Array.isArray(jobData.specific_details) 
             ? jobData.specific_details.join(", ") 
-            : jobData.specific_details || ''
+            : jobData.specific_details || '',
+          workArrangement: jobData.work_arrangement || '',
+          minimumExperience: jobData.minimum_experience ? parseInt(jobData.minimum_experience) : 0,
+          benefits: Array.isArray(jobData.benefits) ? jobData.benefits : (jobData.benefits ? [jobData.benefits] : [''])
         });
 
         setCompanyDetails({
@@ -85,7 +95,10 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
     ageMax: 0,
     gender: '',
     vacancyDeadline: '',
-    specificDetails: ''
+    specificDetails: '',
+    workArrangement : '',
+    minimumExperience: 0,
+    benefits: [''],
   });
 
   const [jobAdPreferences, setJobAdPreferences] = useState<JobAdPreferences>({
@@ -152,6 +165,8 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
         industry: companyDetails.industry,
         other_information: companyDetails.otherInformation,
         vacancy_deadline: jobDetails.vacancyDeadline,
+        work_arrangement : jobDetails.workArrangement,
+        minimum_experience: jobDetails.minimumExperience.toString(),
       };
 
       const result = await service.updateJobAd(jobRequirementId, payload, token);
@@ -283,7 +298,7 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
             </div>
 
             
-           <div className="flex gap-4">
+            <div className="flex gap-4">
               {/* Gender */}
               <div className="flex-1">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
@@ -320,7 +335,95 @@ export const MultiStepJobForm: React.FC<MultiStepJobFormProps> = ({ onComplete }
                 </div>
               </div>
             </div>
+          
+            <div className="flex gap-4">
+                {/* Work Arrangement */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Work Arrangement
+                </label>
+                <Select
+                  value={jobDetails.workArrangement}
+                  onValueChange={(val) => updateJobDetails("workArrangement", val)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select arrangement" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {WORK_ARRANGEMENT_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Minimum Experience (Years)
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    value={jobDetails.minimumExperience || ""}
+                    onChange={(e) => updateJobDetails("minimumExperience", e.target.value)}
+                    placeholder="Years of Experience"
+                    min="0"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
 
+            <div className="flex gap-4">
+              {/* Benefits (Array Input) */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Benefits
+                </label>
+
+                {jobDetails.benefits.map((benefit, index) => (
+                  <div key={index} className="flex items-center gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={benefit}
+                      onChange={(e) => {
+                        const newBenefits = [...jobDetails.benefits];
+                        newBenefits[index] = e.target.value;
+                        setJobDetails((prev) => ({ ...prev, benefits: newBenefits }));
+                      }}
+                      placeholder="e.g. BPJS Kesehatan, Bonus Tahunan"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newBenefits = jobDetails.benefits.filter((_, i) => i !== index);
+                        setJobDetails((prev) => ({ ...prev, benefits: newBenefits }));
+                      }}
+                      className="text-red-500 hover:text-red-700 text-sm"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setJobDetails((prev) => ({
+                      ...prev,
+                      benefits: [...prev.benefits, ''],
+                    }))
+                  }
+                  className="text-blue-600 hover:text-blue-800 text-sm mt-1"
+                >
+                  + Tambah Benefit
+                </button>
+              </div>
+
+            </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Specific Details</label>
