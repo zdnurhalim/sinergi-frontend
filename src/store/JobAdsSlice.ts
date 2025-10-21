@@ -2,22 +2,22 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { JobAd } from "@/types/JobRequirement";
 
 interface JobAdsState {
-  data: JobAd[];
+  data: JobAd;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: JobAdsState = {
-  data: [],
+  data: null,
   loading: false,
   error: null,
 };
 
 const JobAdsSlice = createSlice({
-  name: "jobAds",
+  name: "JobAdsSlice",
   initialState,
   reducers: {
-    setJobAds(state, action: PayloadAction<JobAd[]>) {
+    setJobAds(state, action: PayloadAction<JobAd>) {
       state.data = action.payload;
       state.loading = false;
       state.error = null;
@@ -29,7 +29,7 @@ const JobAdsSlice = createSlice({
       state.error = action.payload;
     },
     resetJobAds(state) {
-      state.data = [];
+      state.data = null;
       state.loading = false;
       state.error = null;
     },

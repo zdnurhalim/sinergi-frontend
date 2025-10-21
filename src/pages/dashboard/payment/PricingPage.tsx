@@ -30,10 +30,8 @@ export const PricingPage: React.FC = () => {
   const navigate = useNavigate();
   const paymentService = new PaymentGatewayService();
 
-  const handleSelectPlan = async (planId: string, price: number, name: string) => {
-    // console.log("Selected Plan:", planId);
-    // nanti bisa redirect ke checkout atau simpan di state global
-    // navigate("checkout"); // contoh redirect
+  const handleSelectPlan = async (planId: string, price: number) => {
+
     try {
         const user = JSON.parse(localStorage.getItem("user") || "{}");
         console.log(user)
