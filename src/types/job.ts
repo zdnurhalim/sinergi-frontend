@@ -20,13 +20,16 @@ export interface CompanyDetails {
 export interface JobDetails {
   position: string;
   dailyTasks: string;
-  salaryMin: number;
-  salaryMax: number;
-  ageMin?: number;
-  ageMax?: number;
-  gender: string; // simpan sebagai string (comma-separated)
-  vacancyDeadline: string; // simpan sebagai ISO date string
+  salaryMin: number | string;
+  salaryMax: number  | string;
+  ageMin?: number  | string;
+  ageMax?: number  | string;
+  gender: string; // 
+  vacancyDeadline: string; 
   specificDetails: string;
+  workArrangement?: string;
+  minimumExperience?: number  | string;
+  benefits?: string[]; 
 }
 
 export interface JobAdPreferences {

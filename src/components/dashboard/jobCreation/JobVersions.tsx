@@ -6,7 +6,6 @@ import { Edit } from "lucide-react";
 import { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
 import { useAuthToken } from "@/hooks/useAuthToken";
-// import { JobRequirementResponse } from "@/types/JobRequirement";
 import { JobRequirementService } from "@/services/JobRequirementService"; 
 
 
@@ -17,11 +16,18 @@ interface Props {
   onBack: () => void;
 }
 
+interface GenerateContent {
+  parsed_response?: {
+    version_1?: any;
+    version_2?: any;
+  };
+}
+
 export default function JobVersions({  selectedVersion, onChooseVersion, onBack }: Props) {
-  const { data, loading, error } = useSelector((state: RootState) => state.jobRequirement);
+  const { data, loading, error } = useSelector((state: RootState) => state.jobAdDetail);
   const service = new JobRequirementService();
   const token = useAuthToken(); 
-  const versions = (data?.generate_content ?? []).flatMap((gc: any) => {
+  const versions = (data?.job_requirement?.generate_content ?? []).flatMap((gc: GenerateContent) => {
   const pr = gc.parsed_response ?? {};
 
   const v1 = Array.isArray(pr.version_1)

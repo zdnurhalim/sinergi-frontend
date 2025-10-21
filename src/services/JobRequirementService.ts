@@ -5,9 +5,17 @@ export interface GuestJobAdsPayload {
 }
 
 export interface GenerateJobAdPayload {
-  job_requirement_id: number;
+  job_ad_id: number;
   company_description: string;
   talent_description: string;
+}
+
+export interface JobAdPreferencesPayload {
+  job_ad_id: number;
+  include_company_name?: boolean;
+  include_salary_range?: boolean;
+  include_age_limitation?: boolean;
+  include_gender_preference?: boolean;
 }
 
 export class JobRequirementService {
@@ -97,9 +105,34 @@ export class JobRequirementService {
     }
 
     async getAllJobAds(token?: string) {
-      const headers: any = { "Content-Type": "application/json" };
+      const headers = { "Content-Type": "application/json" };
       if (token) headers["Authorization"] = `Bearer ${token}`;
       const res = await fetch(`${this.baseUrl}/job-ads`, { headers });
+      return this.handleResponse(res);
+    }
+
+    async getJobAdPreferences(id: number, token?: string) {
+      const headers: Record<string,string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch(`${this.baseUrl}/job-ads/preferences/${id}`, {
+        method: "GET",
+        headers,
+      });
+
+      return this.handleResponse(res);
+    }
+
+    async updateJobAdPreferences(payload: JobAdPreferencesPayload, token: string) {
+      const res = await fetch(`${this.baseUrl}/job-ads/preferences`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
       return this.handleResponse(res);
     }
 

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '@/components/onboarding/Header';
 import GlassmorphicCard from '@/components/onboarding/GlassmorphicCard';
 import RegistrationCard from '@/components/onboarding/RegistrationCard';
-import { setJobRequirement, setError, setLoading } from '@/store/JobRequirementSlice';
+import { setJobAds, setError, setLoading } from '@/store/JobAdsSlice';
 import { setAuth, setAuthLoading } from '@/store/AuthSlice';
 import { useDispatch } from 'react-redux';
 
@@ -29,12 +29,16 @@ const Onboarding = () => {
       });
 
       const rawData = response.data;  
-      dispatch(setJobRequirement(rawData));
+      dispatch(setJobAds(rawData));
       dispatch(setError(null));
 
-      setOnboardingData({ companyInfo, talentInfo, claimToken: rawData.claim_token });
+      setOnboardingData({
+        companyInfo,
+        talentInfo,
+        claimToken: rawData.job_requirement.claim_token,
+      });
       setStep('register');
-    } catch (error: any) {
+    } catch (error) {
       if (error.status === 422 && error.errors) {
         setFormErrors(error.errors);
       } else {
@@ -63,7 +67,7 @@ const Onboarding = () => {
       dispatch(setAuthLoading(false));
       
       navigate('/dashboard/create-job');
-    } catch (error: any) {
+    } catch (error) {
       if (error.status === 422 && error.errors) {
         setFormErrors(error.errors);
       } else {
